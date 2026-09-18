@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RepoHealth.Api/RepoHealth.Api.csproj" />
+    <Project Path="src/RepoHealth.Cli/RepoHealth.Cli.csproj" />
+    <Project Path="src/RepoHealth.Collection/RepoHealth.Collection.csproj" />
+    <Project Path="src/RepoHealth.Contracts/RepoHealth.Contracts.csproj" />
+    <Project Path="src/RepoHealth.Scoring/RepoHealth.Scoring.csproj" />
+    <Project Path="src/RepoHealth.Worker/RepoHealth.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RepoHealth.Scoring.Tests/RepoHealth.Scoring.Tests.csproj" />
+  </Folder>
+</Solution>
