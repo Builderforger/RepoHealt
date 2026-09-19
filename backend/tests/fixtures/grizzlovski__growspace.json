@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "grizzlovski/growspace",
+    "url": "https://sourcecraft.dev/grizzlovski/growspace",
+    "language": {
+      "name": "HTML",
+      "color": "#e34c26"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-03-01T16:45:08.751616Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# GrowSpace - Онлайн Маркетплейс\n\nДобро пожаловать в репозиторий проекта GrowSpace - современного онлайн маркетплейса.\n\n## О проекте\n\nGrowSpace - это платформа, которая соединяет продавцов и покупателей, позволяя продавать и покупать различные товары и услуги.\n\n## Структура проекта\n\n```\ngrowspace/\n├── src/\n│   ├── assets/          # Статические файлы (изображения, иконки)\n│   ├── components/      # Переиспользуемые компоненты\n│   ├── pages/           # Страницы приложения\n│   ├── services/        # API сервисы и утилиты\n│   ├── styles/          # Стили приложения\n│   └── utils/           # Вспомогательные функции\n├── public/              # Публичные файлы\n├── docs/                # Документация\n└── tests/              # Тесты\n```\n\n## Основные функции\n\n- Регистрация и аутентификация пользователей\n- Создание и управление объявлениями\n- Поиск и фильтрация товаров\n- Система рейтингов и отзывов\n- Корзина и оформление заказа\n- Личный кабинет пользователя\n\n## Технологии\n\n- Frontend: HTML, CSS, JavaScript (React.js)\n- Backend: Node.js, Express.js\n- База данных: PostgreSQL\n- Аутентификация: JWT\n- Хостинг: Yandex Cloud\n\n## Начало работы\n\n1. Клонируйте репозиторий\n2. Установите зависимости\n3. Запустите локальный сервер разработки\n\n## Команда разработки\n\n- [Ваше имя] - Ведущий разработчик\n\n## Лицензия\n\nMIT",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 201,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

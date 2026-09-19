@@ -18,6 +18,14 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <!-- Копируем файлы фикстур рядом с собранным тестом,
+       чтобы тест мог их прочитать во время запуска -->
+  <ItemGroup>
+    <Content Include="..\fixtures\*.json"
+             CopyToOutputDirectory="PreserveNewest"
+             LinkBase="fixtures" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\RepoHealth.Contracts\RepoHealth.Contracts.csproj" />
     <ProjectReference Include="..\..\src\RepoHealth.Scoring\RepoHealth.Scoring.csproj" />

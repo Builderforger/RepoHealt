@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "batarginegor/transactionmanagement",
+    "url": "https://sourcecraft.dev/batarginegor/transactionmanagement",
+    "language": {
+      "name": "Python",
+      "color": "#3572A5"
+    },
+    "likes": 0,
+    "place_likes": 45,
+    "date_of_update": "2025-10-22T09:11:20.363230Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# TransactionManagement",
+    "commits_90": 0,
+    "authors_total": 2,
+    "authors_90": 0,
+    "days_since_last_commit": 340,
+    "main_author_share": 0.6666666666666666
+  },
+  "notes": []
+}

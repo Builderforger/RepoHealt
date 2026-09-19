@@ -1,0 +1,28 @@
+{
+  "catalog": {
+    "name": "kanibor1/undefined",
+    "url": "https://sourcecraft.dev/kanibor1/undefined",
+    "language": null,
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-04-30T10:34:55.548090Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 1,
+      "issues": 0,
+      "tags": 0,
+      "branches": 3
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# Docker image\nСборка docker-образа.",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 142,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

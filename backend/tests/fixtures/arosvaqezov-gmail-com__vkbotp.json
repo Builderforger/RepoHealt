@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "arosvaqezov-gmail-com/vkbotp",
+    "url": "https://sourcecraft.dev/arosvaqezov-gmail-com/vkbotp",
+    "language": {
+      "name": "Python",
+      "color": "#3572A5"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-06-19T01:23:23.669040Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# VK Bot Template\n\nУчебный шаблон VK-бота на **vkbottle** с примерами всех основных возможностей фреймворка.\n\n## Стек\n\n- **vkbottle** — фреймворк для создания VK-ботов\n- **SQLAlchemy** (async) — ORM\n- **aiosqlite** — асинхронный драйвер SQLite\n- **Alembic** — миграции БД\n- **Pydantic** — валидация данных и схемы\n- **uv** — менеджер зависимостей\n\n## Структура проекта\n\n```\n├── main.py                        # Точка входа\n├── app/\n│   ├── config.py                  # Конфигурация (pydantic-settings)\n│   ├── logger.py                  # Настройка логирования\n│   ├── database/\n│   │   ├── database.py            # Engine, Base, session maker\n│   │   └── db_manager.py          # Контекстный менеджер для работы с БД\n│   ├── models/\n│   │   ├── user.py                # Модель User\n│   │   └── note.py                # Модель Note\n│   ├── schemas/\n│   │   ├── users.py               # Pydantic-схемы пользователей\n│   │   └── notes.py               # Pydantic-схемы заметок\n│   ├── repositories/\n│   │   ├── base.py                # Базовый репозиторий (CRUD)\n│   │   ├── users.py               # Репозиторий пользователей\n│   │   └── notes.py               # Репозиторий заметок\n│   └── managers/\n│       ├── users_manager.py       # Бизнес-логика пользователей\n│       └── notes_manager.py       # Бизнес-логика заметок\n├── bot/\n│   ├── bot.py                     # Инициализация бота\n│   ├── states.py                  # FSM-состояния (BaseStateGroup)\n│   ├── rules.py                   # Кастомные правила (ABCRule)\n│   ├── keyboards.py               # Клавиатуры (обычные и inline)\n│   ├── error_handler.py           # Обработчик ошибок (ErrorHandler)\n│   ├── handlers/\n│   │   ├── basic.py               # Базовые хендлеры (привет, меню, помощь)\n│   │   ├── notes.py               # CRUD заметок + FSM\n│   │   └── examples.py            # Примеры: regex, вложения, VK API\n│   └── middlewares/\n│       ├── registration.py        # Авто-регистрация пользователей\n│       └── logging.py             # Логирование входящих сообщений\n└── alembic/                       # Миграции БД\n```\n\n## Архитектурные паттерны\n\n- **Repository** — абстракция над БД, все CRUD-операции в `BaseRepository`\n- **Manager** — бизнес-логика поверх репозиториев\n- **DBManager** — контекстный менеджер, объединяющий репозитории и менеджеры в одну сессию\n\n## Примеры VK API / vkbottle\n\n| Возможность | Файл | Описание |\n|---|---|---|\n| Текстовые хендлеры | `handlers/basic.py` | Обработка по тексту (`text=`) |\n| Regex-правила | `handlers/examples.py` | Обработка по регулярному выражению (`regex=`) |\n| Вложения | `handlers/examples.py` | Обработка фото (`AttachmentTypeRule`) |\n| Callback-кнопки | `handlers/notes.py` | Inline-клавиатура с `Callback` + `raw_event` |\n| Обычная клавиатура | `keyboards.py` | `Keyboard` с `Text`-кнопками |\n| FSM (стейт-машина) | `handlers/notes.py`, `states.py` | Пошаговый диалог через `BaseStateGroup` |\n| Мидлвари | `middlewares/` | `pre`/`post` обработка (`BaseMiddleware`) |\n| Кастомные правила | `rules.py` | `ABCRule` — `AdminRule`, `MinLengthRule` |\n| Обработка ошибок | `error_handler.py` | `ErrorHandler` с регистрацией обработчиков |\n| Прямой вызов VK API | `handlers/examples.py` | `bot.api.users.get()` — получение профиля |\n| Payload-кнопки | `handlers/examples.py` | Обработка `payload` из обычной клавиатуры |\n\n## Быстрый старт\n\n```bash\n# 1. Клонировать репозиторий\ngit clone <repo-url>\ncd individual-project-template-bot\n\n# 2. Установить зависимости\nuv sync\n\n# 3. Настроить окружение\ncp .env.example .env\n# Вписать BOT_TOKEN в .env\n\n# 4. Применить миграции\nuv run python -m alembic upgrade head\n\n# 5. Запустить бота\nuv run python main.py\n```\n\n## Как масштабировать под свою тему\n\n1. Добавить новую модель в `app/models/`\n2. Создать схемы в `app/schemas/`\n3. Создать репозиторий в `app/repositories/` (наследовать `BaseRepository`)\n4. Создать менеджер в `app/managers/`\n5. Зарегистрировать в `app/database/db_manager.py`\n6. Создать хендлеры в `bot/handlers/`\n7. Подключить хендлеры в `bot/bot.py`\n8. Сгенерировать миграцию: `uv run python -m alembic revision --autogenerate -m \"описание\"`\n9. Применить: `uv run python -m alembic upgrade head`\n\n## Тестирование\n\n```bash\nuv run python -m pytest tests/ -v\n```\n",
+    "commits_90": 0,
+    "authors_total": 3,
+    "authors_90": 0,
+    "days_since_last_commit": 92,
+    "main_author_share": 0.4
+  },
+  "notes": []
+}

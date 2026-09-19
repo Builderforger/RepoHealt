@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "nacauter/new-black-world",
+    "url": "https://sourcecraft.dev/nacauter/new-black-world",
+    "language": {
+      "name": "TSX",
+      "color": "#3178c6"
+    },
+    "likes": 0,
+    "place_likes": 45,
+    "date_of_update": "2026-04-12T07:12:30.677951Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "<div align=\"center\">\n<img width=\"1200\" height=\"475\" alt=\"GHBanner\" src=\"https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6\" />\n</div>\n\n# Run and deploy your AI Studio app\n\nThis contains everything you need to run your app locally.\n\nView your app in AI Studio: https://ai.studio/apps/93448041-ad93-47bc-a896-dd8ef2df6f8b\n\n## Run Locally\n\n**Prerequisites:**  Node.js\n\n\n1. Install dependencies:\n   `npm install`\n2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key\n3. Run the app:\n   `npm run dev`\n",
+    "commits_90": 0,
+    "authors_total": 2,
+    "authors_90": 0,
+    "days_since_last_commit": 160,
+    "main_author_share": 0.875
+  },
+  "notes": []
+}

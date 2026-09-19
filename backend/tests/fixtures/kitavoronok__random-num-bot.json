@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "kitavoronok/random-num-bot",
+    "url": "https://sourcecraft.dev/kitavoronok/random-num-bot",
+    "language": {
+      "name": "JavaScript",
+      "color": "#f1e05a"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-02-15T10:28:02.208343Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# Инструкция по развертыванию\n\n### Настройте  интеграцию с Yandex Cloud\n\nВ настройках вашей организации SourceCraft создайте сервисное подключение (Settings-\\>Service Connections). Для развертывания Telegram-бота подойдут настройки по умолчанию.\n\n{% note info \"SourceCraft грант на сервисы облака Yandex Cloud\" %}\n\nЕсли вы находитесь в персональной организации SourceCraft  вам будет предложено активировать грант на сервисы облака.\n\nПерсональная организация создается автоматически при регистрации в SourceCraft и заканчивается на Personal Organization (SourceСraft), в описании указано Created By SourceCraft.\n\n{% endnote %}\n\n### Зарегистрируйте Telegram-бота {#3-telegram-}\n\nЗарегистрируйте вашего бота в Telegram и получите токен.\n\n1. Для регистрации нового бота запустите бота [BotFather](https://t.me/BotFather) и отправьте команду:\n\n   ```\n   /newbot\n   ```\n\n2. Задайте имя (name) и имя пользователя (username) для бота. Имя пользователя должно оканчиваться на `...Bot` или `..._bot`.\n\n   Например:\n\n   * name: demo-bot\n\n   * username: demobot\n\n   В результате вы получите токен. Сохраните его, он потребуется на следующих шагах.\n\n### Запустите процесс сборки и развертывания вашего бота\n\nПерейдите в секцию CI/CD для вашего репозитория и запустите CI/CD процесс (кнопка New Launch), где в качестве параметра bot-token укажите  токен, который вы получили на предыдущем шаге от BotFather. bot-token необходим для успешной связки вашей cloud function с ботом.\n\nПосле успешного завершения CI/CD процесса необходимо убедиться что ваша cloud function доступна публично без аутентификации. Для автоматической публикации без аутентификации необходима роль function.admin или выше.\n\nМестоположение, куда был развернута cloud function, можно увидеть кликнув по кубику get-outputs. Необходимо перейти по ссылке вида [https://console.yandex.cloud/folders/\\<your\\_folder\\_id\\>/functions/functions/\\<your\\_function\\_id/overview](https://console.yandex.cloud/folders/%5C*%5C*%5C*/functions/functions/d4ei109bh4c15agt8k5t/overview) и включить опцию \"Публичная функция\" для работы с Telegram.\n\n### **FAQ**\n\n1. Возможно ли не передавать bot-token.\n\n   Параметр bot-token является опциональным. Он необходим для автоматической привязки вашей cloud function к тг-боту. Если вы не передадите bot-token при первом запуске, то для регистрации бота вам необходимо выполнить привязку вашего публичного ендпоинта к тг-боту самостоятельно.\n\n2. Функция развернулась, но бот не работает.\n\n   Проверьте, что функция доступна по публичному адресу.\n\n3. В логах кубика Permission Denied.\n\n   Это сообщение выводится если не хватает прав у сервисного аккаунта. Для публикации функциии необходима [роль](https://yandex.cloud/ru/docs/functions/security/#functions-admin) `functions.admin`. Также вы можете опубликовать функцию в интерфейсе Yandex Cloud\n\n4. Какие значения можно передавать в кубик с образом **cr.yandex/sourcecraft/yc-function**\n\n   * Обязательные параметры\n\n     **YC\\_FUNCTION\\_NAME** - имя функции, /\\|\\[a-z\\]\\[-a-z0-9\\]\\{1,61\\}\\[a-z0-9\\]/, уникальное имя в каталоге, если функция с таким именем существует, при запуске ci/cd процесса произойдет создание новой версии.\n\n     **YC\\_FUNCTION\\_RUNTIME** - идентификатор [среды выполнения](https://yandex.cloud/ru/docs/functions/concepts/runtime/#runtimes)\n\n     **YC\\_FUNCTION\\_ENTRYPOINT** - точка входа, для каждой среды выполнения она задается согласно [документации](https://yandex.cloud/ru/docs/functions/quickstart/create-function/)\n\n   * Другие параметры:\n\n     **SOURCE\\_PATH** - папка в репозитории откуда скопируются все файлы при развертывании новой версии функции\n\n     **ENVIRONMENT** - аналог yc cli параметра --environment\n\n     **PUBLIC** - делает функцию доступной публично, аналог yc cli параметра [allow-unauthenticated-invoke](https://yandex.cloud/ru/docs/cli/cli-ref/serverless/cli-ref/function/allow-unauthenticated-invoke), необходима роль functions.admin и выше для сервисного аккаунта.\n\n     Другие примеры использования кубика [https://sourcecraft.dev/yandex-cloud-examples/serverless-functions](https://sourcecraft.dev/yandex-cloud-examples/serverless-functions/)\n\n5. Не хватает нужных параметров для развертывания функции через кубик с образом **cr.yandex/sourcecraft/yc-function**\n\n   Кубик **yc-function** подходит для базовых сценариев развертывания и не покрывает каждый параметр настройки cloud function. Для более сложных сценариев развертывания рекомендуем воспользоваться кубиком **cr.yandex/sourcecraft/yc-cli** в котором вы можете использовать все возможности yc cli.\n\n   Пример:\n\n   ```\n   # Кубик с предустановленным Yandex Cloud CLI забирает из outputs \n   # переменную IAM_TOKEN и использует ее для получения списка функций Cloud Functions.\n   - name: get-functions\n     env:\n       # Подставьте в блок для получения значений outputs имя кубика с\n       # IAM-токеном, например get-iam-token.\n       YC_IAM_TOKEN: ${{ cubes.<имя_кубика_с_IAM-токеном>.outputs.IAM_TOKEN }}\n       YC_FOLDER_ID: ${{ tokens.<имя_токена>.folder_id }}\n     image: \n       name: cr.yandex/sourcecraft/yc-cli:latest\n       entrypoint: \"\"\n     script:\n       - |\n         yc config set folder-id $YC_FOLDER_ID\n         yc serverless function list\n   ```\n\n6. Я опытный пользователь GitHub могу ли я переиспользовать свои GitHub Actions в SourceCraft CI/CD\n\n   Да, SourceCraft поддерживает запуск GitHub Actions. Также вы можете комбинировать несколько подходов в одном workflow, см. пример <https://sourcecraft.dev/sourcecraft/yc-ci-cd-serverless/browse/.sourcecraft/ci.yaml>",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 216,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

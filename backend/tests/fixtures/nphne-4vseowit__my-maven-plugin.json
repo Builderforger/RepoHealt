@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "nphne-4vseowit/my-maven-plugin",
+    "url": "https://sourcecraft.dev/nphne-4vseowit/my-maven-plugin",
+    "language": {
+      "name": "Java",
+      "color": "#b07219"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-07-27T20:34:57.605012Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# my-maven-plugin\n\nПростой Maven плагин\n",
+    "commits_90": 4,
+    "authors_total": 1,
+    "authors_90": 1,
+    "days_since_last_commit": 53,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

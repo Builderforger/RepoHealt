@@ -1,0 +1,28 @@
+{
+  "catalog": {
+    "name": "sofia-zalaeva/gitflow",
+    "url": "https://sourcecraft.dev/sofia-zalaeva/gitflow",
+    "language": null,
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2025-11-28T14:45:19.809399Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# gitflow",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 294,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "sodisozonov/ai-landing-public",
+    "url": "https://sourcecraft.dev/sodisozonov/ai-landing-public",
+    "language": {
+      "name": "HTML",
+      "color": "#e34c26"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-02-26T10:30:19.726246Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# ai-landing-public\n\nПубличный лендинг для ИТ-стартапа в сфере ИИ\n",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 205,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

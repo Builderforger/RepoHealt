@@ -1,0 +1,28 @@
+{
+  "catalog": {
+    "name": "greufs/kotokrollvpn",
+    "url": "https://sourcecraft.dev/greufs/kotokrollvpn",
+    "language": null,
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-04-18T13:59:44.511379Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# kotokrollvpn",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 153,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

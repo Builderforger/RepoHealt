@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "almaz-6558/armor-sound-tweak-12111",
+    "url": "https://sourcecraft.dev/almaz-6558/armor-sound-tweak-12111",
+    "language": {
+      "name": "Java",
+      "color": "#b07219"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-07-11T11:02:34.458774Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# Armor Sound Tweak\n\nПорт мода Armor Sound Tweak для Minecraft **1.21.1** на **Fabric**.\n\nИзменяет звуки надевания брони на более приятные.\n\n## Установка\n\n1. Установи [Fabric Loader](https://fabricmc.net/use/)\n2. Скачай последний релиз из [релизов](https://sourcecraft.dev/almaz-6558/armor-sound-tweak-12111/releases)\n3. Помести `.jar` файл в папку `mods`\n\n## Сборка\n\n```bash\n./gradlew build\n```\n\nСобранный мод будет в `build/libs/`.\n\n## Разработка\n\n- Minecraft: 1.21.1\n- Fabric Loader: 0.16.9+\n- Fabric API: 0.102.0+\n- Java: 21",
+    "commits_90": 14,
+    "authors_total": 1,
+    "authors_90": 1,
+    "days_since_last_commit": 70,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

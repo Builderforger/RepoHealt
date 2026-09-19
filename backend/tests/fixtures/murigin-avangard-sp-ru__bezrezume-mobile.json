@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "murigin-avangard-sp-ru/bezrezume-mobile",
+    "url": "https://sourcecraft.dev/murigin-avangard-sp-ru/bezrezume-mobile",
+    "language": {
+      "name": "HTML",
+      "color": "#e34c26"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-05-18T14:00:54.796116Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# Примеры развертывания мобильных приложений в RuStore, HUAWEI AppGallery, Google Play и App Store\n\nВ данном пошаговом руководстве вы научитесь развертывать мобильное приложение в один или несколько популярных сторов мобильных приложений. Платформа SourceCraft предоставляет удобный способ автоматического управления релизами мобильных приложений. Инструмент, который позволит делать все манипуляции с деплоем мобильных приложений, связывать релизы в разные сторы.\n\n{% note info \"Примечание\" %}\n\nДля развертывания приложения вам необходимо иметь доступ в соотвествующие сторы мобильных приложений для генерации api-ключей, подробнее см. раздел [Создание API ключей для мобильных сторов](/docs/apikeys.md)\n\n{% endnote %}\n\n### Процесс публикации в SourceCraft CI/CD\n\nВ файле [.sourcecraft/ci.yaml](/.sourcecraft/ci.yaml) определен CI/CD-процесс, который запускается при создании pull-реквеста в ветку main и выполняет следующие шаги:\n\n1. build - на данном шаге происходит имитация сборки мобильного приложения. Вы можете загрузить исходный код вашего приложения и определить процесс сборки дистрибутива. На данный момент SourceCraft поддерживает встроенные раннер на платформе linux/amd64, также вы можете настроить self hosted раннеры на платформах windows, macos.\n\n2. prepare\\_metadata - на данном шаге демонстрируется процесс создания метаданных для вашего приложения, подробнее см. раздел [Метаданные для кубика](/docs/metadata.md). Все метаданные могут быть подготовлены в вашем проекте заранее.\n\n3. publish - с помощью \"готового кубика ***SourceCraft mobile-deploy:preview***\" происходит публикация вашего приложения в RuStore\n\n### Кубик SourceCraft mobile-deploy:preview\n\nДанный кубик инкапсулирует логику публикации в популярные сторы мобильных приложений: RuStore, Huawei AppGallery, Google Play, App Store.\n\n**Обязательные параметры:**\n\n`STORE` - название стора (`GOOGLE_PLAY|APP_STORE|RU_STORE|APP_GALLERY`)\n`PACKAGE_NAME` - имя пакета (`packageName` для Android и `bundleId` для iOS), например `com.company.superapp`\n`VERSION` - версия, например 12.00.\n\n{% note warning \"Важно\" %}\n\nКубик умеет находить версии, созданные руками в сторе, если название версии, переданное в кубик совпадает с версией в сторе.\nТогда при обновлении релиза в сторе система подхватит существующий релиз как текущий и просто дополнит/обновит его.\nЭто может быть полезно, когда по каким-то причинам пришлось залить релиз в стор руками, а обновить хотите через кубик\n\n- Старайтесь задавать имя версии для `RuStore` и `AppGallery` таким, как у вас указано в Manifest файле `versionName`.\n- Для `GooglePlay` и `AppStore` в поле `VERSION` указывайте то, что должно отображаться пользователям.\n\n{% endnote %}\n\n`API_KEY`, `API_KEY_ID`, `API_ISSUER_ID` - параметры авторизации, зависят от стора, как сгенерировать ключи [см. документацию](/docs/apikeys).\n\n**Опциональные параметры:**\n\n`METADATA_PATH` - путь до папки с метаданными, по умолчанию `./stores_metadata` [подробнее как создать папку с метаданными](/docs/metadata.md)\n`STATUS`- возможные варианты:\n\n- DRAFT - создать черновик в сторе (используется по умолчанию)\n- IN\\_PROGRESS\\_\\{percent\\} - выкатить релиз на процент на percent процентов (percent - число с плавающей точкой). Например `IN_PROGRESS_25.55` или `IN_PROGRESS_99`\n- HALTED - отменить раскатку попроцентного релиза в сторе\n- COMPLETED - выкатить релиз на всю аудиторию\n\n`DEBUG_LOGS`  - показывать подробные логи, по умолчанию false\n`PUBLISH_TYPE` - выкатить релиз с автоматичкески или c ручным подтверждением в сторе после ревью (в соответствии с возможностями конкретного стора)`AUTO|MANUAL`, по умолчанию `AUTO`\n\n**Пример для RuStore:**\n\n```yaml\n- name: publish-to-rustore\n  env:\n   STORE: \"RU_STORE\"\n   API_KEY_ID: ${{ secrets.ruStoreKeyId }}\n   API_KEY: ${{ secrets.ruStoreKey }}\n   PACKAGE_NAME: com.yourcompany.yourapp\n   VERSION: 12.00\n   METADATA_PATH: metadata # optional\n   STATUS: DRAFT # optional\n   DEBUG_LOGS: false # optional\n   PUBLISH_TYPE: AUTO # optional\n  image: cr.yandex/sourcecraft-cube/mobile-deploy:preview\n```\n\n**Специфичные для стора параметры:**\n\n**Google Play**\n`TRACK` - трек раскатки приложения (`alpha` \\| `beta` \\| `production` \\| `internal`) по умолчанию используется значение `internal`\n\n**AppStore**\n\n`PLATFORM` - платформа, для которой создается релиз (`IOS` \\| `MAC_OS` \\| `TV_OS` \\| `VISION_OS`) по умолчанию используется значение `IOS`\n\n### Дополнительные материалы:\n\n[Создание API ключей для мобильных сторов](url \"/docs/apikeys.md\")\n\n[Управлять секретами в репозитории SourceCraft](https://sourcecraft.dev/portal/docs/ru/sourcecraft/operations/secrets)\n\nОсобенности работы апи разных сторов см. в разделе каждого стора\n\n- [AppStore](docs/appstore.md)\n- [GooglePlay](docs/googleplay.md)\n- [RuStore](docs/rustore.md)\n- [AppGallery](docs/appgallery.md)",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 123,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

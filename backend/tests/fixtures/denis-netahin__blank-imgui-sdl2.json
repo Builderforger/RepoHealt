@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "denis-netahin/blank-imgui-sdl2",
+    "url": "https://sourcecraft.dev/denis-netahin/blank-imgui-sdl2",
+    "language": {
+      "name": "C++",
+      "color": "#f34b7d"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-02-14T07:55:48.799018Z",
+    "counters": {
+      "forks": 1,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "# ImGui + SDL3 + OpenGL3\n\nМинимальное приложение на C++20 с Dear ImGui, SDL3 и OpenGL 3 для отрисовки интерфейса. Сборка через CMake, зависимости подтягиваются через FetchContent.\n\n---\n\n## Требования\n\n- **CMake** 3.20+\n- **Компилятор** с поддержкой C++20 (на Windows — Visual Studio 2022, генератор \"Visual Studio 17 2022\", x64)\n- **OpenGL** (драйвер и заголовки; на Windows — через системный OpenGL)\n\n---\n\n## Сборка\n\n### Windows (Visual Studio)\n\n```batch\nbuild_vs.bat\n```\n\n- Генерация: `cmake -S . -B _build -G \"Visual Studio 17 2022\" -A x64`\n- Сборка: `cmake --build _build --config Debug`\n- Исполняемый файл: `_build\\bin\\Debug\\main.exe` (или `_build\\bin\\Release\\main.exe` для Release)\n\n### Другая конфигурация\n\n```bash\ncmake -S . -B _build -G \"Ninja\" -DCMAKE_BUILD_TYPE=Release\ncmake --build _build\n```\n\nБинарник: `_build/bin/main` (или `main.exe` на Windows).\n\n---\n\n## Структура проекта\n\n```\n├── CMakeLists.txt          # Корневой CMake, C++20, выходы в _build\n├── build_vs.bat            # Сборка под Visual Studio (каталог _build)\n├── thirdparty/\n│   └── CMakeLists.txt      # FetchContent: SDL3, ImGui; сборка imgui_impl (статическая lib)\n├── src/\n│   ├── apps/               # Приложения\n│   │   └── main/           # Основное приложение (main.cpp)\n│   ├── libs/               # Общие библиотеки (пока пусто)\n│   └── tests/              # Тесты (enable_testing + add_subdirectory)\n└── _build/                 # Каталог сборки (создаётся при конфигурации)\n```\n\n- **Третьесторонние библиотеки** — в `thirdparty/`; исходники не в репозитории, подтягиваются CMake (FetchContent).\n- **Исходники приложений** — в `src/apps/`, общие библиотеки — в `src/libs/`, тесты — в `src/tests/`.\n\n---\n\n## Зависимости (FetchContent)\n\nВсе зависимости загружаются при первом запуске CMake в `_build/_deps/`.\n\n| Библиотека | Репозиторий | Версия/тег | Как используется |\n|------------|-------------|------------|-------------------|\n| **SDL3** | libsdl-org/SDL | `release-3.2.30` | Окно, события, OpenGL-контекст; статическая сборка (`SDL_STATIC ON`). |\n| **ImGui** | ocornut/imgui | ветка `docking` | Ядро + бэкенды SDL3 и OpenGL3; статическая библиотека `imgui_impl`. |\n\nУ ImGui нет корневого `CMakeLists.txt`, поэтому используется `FetchContent_Populate(imgui)` и свой целевой статический таргет `imgui_impl` с нужными исходниками и путями включения.\n\n---\n\n## Технические особенности приложения\n\n### Статическая линковка SDL3 на Windows\n\n- Точка входа — свой `main()`, не SDL_main.\n- Перед любыми включениями SDL задаётся **`SDL_MAIN_HANDLED`**.\n- Подключается **`<SDL3/SDL_main.h>`** и перед `SDL_Init()` вызывается **`SDL_SetMainReady()`**.\n- В SDL3 **`SDL_Init()`** при успехе возвращает **`true`**, при ошибке — **`false`** (в отличие от SDL2).\n\n### Окно и OpenGL\n\n- Окно создаётся с флагами `SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY`.\n- **HiDPI:** флаг `SDL_WINDOW_HIGH_PIXEL_DENSITY` запрашивает буфер с учётом плотности пикселей (на HiDPI-мониторах — больше пикселей при тех же логических размерах).\n- Контекст OpenGL: Core Profile 3.0 (`SDL_GL_CONTEXT_MAJOR_VERSION 3`, `SDL_GL_CONTEXT_PROFILE_CORE`).\n- Рендер: ImGui рисуется через бэкенд OpenGL3, в конце кадра — `SDL_GL_SwapWindow()`.\n\n### HiDPI и масштабирование\n\n- **ImGui:** включены `ImGuiConfigFlags_DpiEnableScaleFonts` и `ImGuiConfigFlags_DpiEnableScaleViewports` — масштабирование шрифтов и вьюпортов по DPI.\n- Бэкенд ImGui для SDL3 выставляет `io.DisplaySize` и `io.DisplayFramebufferScale` (из `SDL_GetWindowSizeInPixels` и масштаба окна).\n- **Viewport OpenGL** задаётся в пикселях: `fb_w = DisplaySize.x * DisplayFramebufferScale.x`, `fb_h = DisplaySize.y * DisplayFramebufferScale.y`, затем `glViewport(0, 0, fb_w, fb_h)`.\n\n### Шрифты\n\n- Вместо встроенного пиксельного шрифта ImGui загружается системный TTF:\n  - **Windows:** по очереди пробуются `C:\\Windows\\Fonts\\segoeui.ttf` (Segoe UI), `seguiui.ttf`, `arial.ttf`.\n  - **Linux:** DejaVu Sans / Liberation Sans в типичных путях (`/usr/share/fonts/...`).\n- Параметры загрузки: размер 19 px, `OversampleH/OversampleV = 2`, `PixelSnapH = true` для более чёткого и читаемого текста.\n\n### События и выход\n\n- Обработка событий через `SDL_PollEvent`; все события передаются в `ImGui_ImplSDL3_ProcessEvent`.\n- Выход при `SDL_EVENT_QUIT` или `SDL_EVENT_WINDOW_CLOSE_REQUESTED` для текущего окна (сравнение по `SDL_GetWindowID`).\n\n---\n\n## Выходы сборки\n\n- **Библиотеки (статические):** `_build/lib/<Config>/` (например `SDL3-static.lib`, `imgui_impl.lib`).\n- **Исполняемые файлы:** `_build/bin/<Config>/` (например `main.exe` в Debug/Release).\n\nДля мультиконфигурационных генераторов (Visual Studio) подставьте `Debug` или `Release` вместо `<Config>`.\n\n---\n\n## Тесты\n\n- В корневом `CMakeLists.txt` вызываются `enable_testing()` и `add_subdirectory(src/tests)`.\n- В `src/tests/CMakeLists.txt` можно добавлять цели тестов и `add_test(...)`.\n\n---\n\n## Стиль и документация\n\n- Код на **C++**, бэкенд нативный (C++20).\n- Сложная логика помечается комментариями в коде.\n",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 217,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

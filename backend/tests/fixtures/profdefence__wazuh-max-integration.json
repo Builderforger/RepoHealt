@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "profdefence/wazuh-max-integration",
+    "url": "https://sourcecraft.dev/profdefence/wazuh-max-integration",
+    "language": {
+      "name": "Shell",
+      "color": "#89e051"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-06-11T12:31:50.000640Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "```\n├── config/\n│   ├── config.json.example              # Пример конфигурации\n│   ├── local_rules.xml                  # Локальные правила Wazuh (100001–100007)\n│   └── wazuh_max.conf                   # Конфигурация logrotate\n├── grafana/\n│   └── dashboard-ssh.json              # Дашборд Grafana для SSH-мониторинга\n├── src/\n│   └── wazuh_max_alert.py              # Скрипт интеграции (v2.0.0)\n├── tests/\n│   ├── test_alert_bruteforce.json       # Тестовый алерт (правило 100001)\n│   ├── test_alert_privilege_100002.json # Тестовый алерт (правило 100002)\n│   ├── test_alert_privilege_100003.json # Тестовый алерт (правило 100003)\n│   ├── test_alert_privilege_100004.json # Тестовый алерт (правило 100004)\n│   ├── test_alert_privilege_100005.json # Тестовый алерт (правило 100005)\n│   ├── test_alert_reverse_shell_100006.json # Тестовый алерт (правило 100006)\n│   ├── test_alert_web_bruteforce_100007.json # Тестовый алерт (правило 100007)\n│   ├── test_alert_other.json            # Тестовый алерт (другое правило)\n│   └── test_integration.sh              # Скрипт тестирования\n├── install.sh                           # Установщик (v2.0.0)\n├── uninstall.sh                         # Деинсталлятор\n├── update.sh                            # Скрипт обновления\n├── README.md                            # Документация\n└── QUICKSTART.md                        # Быстрый старт\n```",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 99,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

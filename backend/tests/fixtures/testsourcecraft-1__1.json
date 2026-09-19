@@ -1,0 +1,31 @@
+{
+  "catalog": {
+    "name": "testsourcecraft-1/1",
+    "url": "https://sourcecraft.dev/testsourcecraft-1/1",
+    "language": {
+      "name": "Python",
+      "color": "#3572A5"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2025-10-06T06:10:47.091595Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 2
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "123",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 348,
+    "main_author_share": 1.0
+  },
+  "notes": []
+}

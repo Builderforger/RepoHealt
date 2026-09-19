@@ -1,0 +1,28 @@
+{
+  "catalog": {
+    "name": "volodya-korchin/gitquest",
+    "url": "https://sourcecraft.dev/volodya-korchin/gitquest",
+    "language": null,
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2025-12-23T09:33:16.304219Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "#### Новогодний Git Quest: Задание 1\n\n### Вырастить ёлку\n\n## [Отслеживать результаты проверок](https://git-quest.sourcecraft.site/?me=volodya-korchin)\n\nЗадание разминочное и довольно простое: нужно вырастить ASCII-ёлку в файле `tree.txt`.\n\nЁлка растёт постепенно:\n\n- ` * ` сначала она маленькая…\n\n- `/|\\` затем побольше…\n\n- `/_|_\\` а потом совсем большая\n\nВырастите свою ёлку, коммит за коммитом, по метру за коммит.\n\nЁлка бОльшей высоту получает больше очков, главное — сохранять правильную структуру.\n\n---\n\nЧто-то не работает? Ищите ответы в секции \"Вопрос / Ответ\" на [основной странице квеста](https://git-quest.sourcecraft.site/). Обратите внимание, что задания могут быть проверены только в публичных репозиториях.",
+    "commits_90": 0,
+    "authors_total": 2,
+    "authors_90": 0,
+    "days_since_last_commit": 270,
+    "main_author_share": 0.6666666666666666
+  },
+  "notes": []
+}

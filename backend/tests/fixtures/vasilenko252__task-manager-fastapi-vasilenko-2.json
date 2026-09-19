@@ -1,0 +1,37 @@
+{
+  "catalog": {
+    "name": "vasilenko252/task-manager-fastapi-vasilenko-2",
+    "url": "https://sourcecraft.dev/vasilenko252/task-manager-fastapi-vasilenko-2",
+    "language": {
+      "name": "Python",
+      "color": "#3572A5"
+    },
+    "likes": 1,
+    "place_likes": 34,
+    "date_of_update": "2026-07-12T16:27:07.572441Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": true
+  },
+  "git": {
+    "readme": "# Task Manager FastAPI — Стартовый проект\n\n**Стартовый шаблон** для практики по углубленной бэкенд-разработке на FastAPI.\n\n## Что уже есть в проекте\n\n- FastAPI \\+ Uvicorn\n- SQLAlchemy (async) \\+ Alembic\n- SQLite (легкая БД)\n- Pydantic (валидация данных)\n- Полный CRUD для задач\n- Пагинация, фильтрация, сортировка\n- Валидация на уровне моделей\n- Dockerfile\n\n---\n\n## Быстрый старт\n\n### 1\\. Сделайте форк репозитория\n\n1. Зайдите на страницу репозитория:\\\n   [task-manager-fastapi-starter](https://sourcecraft.dev/okaneva2026/task-manager-fastapi-starter)\n\n2. Нажмите кнопку **«Ответвить»** (Fork) в правом верхнем углу.\n\n3. В поле **«Название»** (Name) укажите:\\\n   `task-manager-fastapi-фамилия` (например, `task-manager-fastapi-ivanov`)\n\n4. Нажмите **«Создать ответвление»**.\n\n---\n\n### 2\\. Склонируйте свою копию\n\n```bash\n# SSH (рекомендуется)\ngit clone ssh://ssh.sourcecraft.dev/<логин_организации>/task-manager-fastapi-фамилия.git\n\n# Или HTTPS\ngit clone https://sourcecraft.tech/<логин_организации>/task-manager-fastapi-фамилия.git\n\ncd task-manager-fastapi-фамилия\n```\n\n---\n\n### 3\\. Настройте виртуальное окружение и зависимости\n\n```bash\n# Создать виртуальное окружение\npython3 -m venv venv\n\n# Активировать\nsource venv/bin/activate      # Linux/macOS/WSL\n# или\nvenv\\Scripts\\activate         # Windows (CMD)\n\n# Установить зависимости\npip install -e \".[dev]\"\n```\n\n---\n\n### 4\\. Примените миграцию\n\n```bash\n# Применить миграцию (создать таблицу в БД)\nalembic upgrade head\n```\n\nМиграция уже создана и лежит в папке `migrations/versions/`.\nВам нужно только применить её, чтобы создать таблицу `tasks` в вашей локальной базе данных.\n\n---\n\n### 5\\. Запустите приложение\n\n```bash\npython run.py\n```\n\nПриложение будет доступно: <http://127.0.0.1:8000>\n\nДокументация Swagger: <http://127.0.0.1:8000/docs>\n\n---\n\n## Запуск через Docker\n\n```bash\ndocker build -t task-manager-api .\ndocker run -d -p 8000:8000 --name task-manager task-manager-api\n```\n\n---\n\n## Структура проекта\n\n```text\ntask-manager-fastapi-starter/\n├── src/\n│   └── task_manager/\n│       ├── api/          # Эндпоинты (CRUD)\n│       ├── models/       # SQLAlchemy модели\n│       └── schemas/      # Pydantic схемы\n├── migrations/           # Alembic миграции\n├── run.py                # Точка входа\n├── pyproject.toml        # Зависимости\n├── Dockerfile            # Контейнеризация\n└── README.md\n```",
+    "commits_90": 12,
+    "authors_total": 3,
+    "authors_90": 3,
+    "days_since_last_commit": 68,
+    "main_author_share": 0.6923076923076923
+  },
+  "notes": [
+    {
+      "source": "catalog",
+      "operation": "анализ_происхождения",
+      "reason": "репозиторий является форком"
+    }
+  ]
+}

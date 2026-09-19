@@ -1,0 +1,37 @@
+{
+  "catalog": {
+    "name": "so-and-so/hack-autumn-2025-api",
+    "url": "https://sourcecraft.dev/so-and-so/hack-autumn-2025-api",
+    "language": {
+      "name": "Kotlin",
+      "color": "#A97BFF"
+    },
+    "likes": 0,
+    "place_likes": 45,
+    "date_of_update": "2025-10-26T10:36:48.539088Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 20,
+      "issues": 0,
+      "tags": 0,
+      "branches": 11
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "",
+    "commits_90": 0,
+    "authors_total": 4,
+    "authors_90": 0,
+    "days_since_last_commit": 328,
+    "main_author_share": 0.3333333333333333
+  },
+  "notes": [
+    {
+      "source": "git",
+      "operation": "readme",
+      "reason": "README не найден"
+    }
+  ]
+}

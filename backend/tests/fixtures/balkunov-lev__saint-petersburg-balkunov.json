@@ -1,0 +1,37 @@
+{
+  "catalog": {
+    "name": "balkunov-lev/saint-petersburg-balkunov",
+    "url": "https://sourcecraft.dev/balkunov-lev/saint-petersburg-balkunov",
+    "language": {
+      "name": "Python",
+      "color": "#3572A5"
+    },
+    "likes": 0,
+    "place_likes": null,
+    "date_of_update": "2026-02-26T15:50:43.979624Z",
+    "counters": {
+      "forks": 0,
+      "pull_requests": 0,
+      "issues": 0,
+      "tags": 0,
+      "branches": 1
+    },
+    "migrated_from": null,
+    "fork": false
+  },
+  "git": {
+    "readme": "",
+    "commits_90": 0,
+    "authors_total": 1,
+    "authors_90": 0,
+    "days_since_last_commit": 204,
+    "main_author_share": 1.0
+  },
+  "notes": [
+    {
+      "source": "git",
+      "operation": "readme",
+      "reason": "README не найден"
+    }
+  ]
+}
