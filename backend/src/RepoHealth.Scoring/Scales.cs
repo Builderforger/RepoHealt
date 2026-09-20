@@ -26,7 +26,7 @@ public class Scales
 
         if (days > bad)
             return 0.0;
-
+         
         return 1.0 - ((double)(days - good) / (bad - good));
     }
 }
