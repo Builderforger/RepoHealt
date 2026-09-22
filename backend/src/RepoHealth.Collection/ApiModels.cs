@@ -1,0 +1,107 @@
+using System.Text.Json.Serialization;
+using RepoHealth.Contracts;
+
+namespace RepoHealth.Collection;
+
+/// Ответ метода «все публичные репозитории».
+internal sealed class DiscoverResponse
+{
+    [JsonPropertyName("repositories")]
+    public List<ApiRepository> Repositories { get; set; } = [];
+
+    [JsonPropertyName("next_page_token")]
+    public string? NextPageToken { get; set; }
+}
+
+/// Карточка репозитория так, как её отдаёт API SourceCraft.
+/// Это чужой формат — наш собственный лежит в Contracts.
+internal sealed class ApiRepository
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = "";
+
+    [JsonPropertyName("slug")]
+    public string Slug { get; set; } = "";
+
+    [JsonPropertyName("organization")]
+    public ApiOrganization? Organization { get; set; }
+
+    [JsonPropertyName("is_empty")]
+    public bool IsEmpty { get; set; }
+
+    [JsonPropertyName("web_url")]
+    public string WebUrl { get; set; } = "";
+
+    [JsonPropertyName("clone_url")]
+    public ApiCloneUrl? CloneUrl { get; set; }
+
+    [JsonPropertyName("links")]
+    public List<ApiLink>? Links { get; set; }
+
+    /// Счётчики приходят строками («45»), поэтому при чтении
+    /// включено преобразование строк в числа.
+    [JsonPropertyName("counters")]
+    public Dictionary<string, int>? Counters { get; set; }
+
+    [JsonPropertyName("last_updated")]
+    public string? LastUpdated { get; set; }
+
+    [JsonPropertyName("language")]
+    public Language? Language { get; set; }
+
+    [JsonPropertyName("rating")]
+    public ApiRating? Rating { get; set; }
+
+    [JsonPropertyName("migration_source")]
+    public ApiMigrationSource? MigrationSource { get; set; }
+
+    [JsonPropertyName("parent")]
+    public ApiRepositoryRef? Parent { get; set; }
+
+    public string FullName => $"{Organization?.Slug ?? ""}/{Slug}";
+}
+
+internal sealed class ApiOrganization
+{
+    [JsonPropertyName("slug")]
+    public string Slug { get; set; } = "";
+}
+
+internal sealed class ApiCloneUrl
+{
+    [JsonPropertyName("https")]
+    public string? Https { get; set; }
+
+    [JsonPropertyName("ssh")]
+    public string? Ssh { get; set; }
+}
+
+internal sealed class ApiLink
+{
+    [JsonPropertyName("link")]
+    public string Link { get; set; } = "";
+}
+
+internal sealed class ApiRating
+{
+    [JsonPropertyName("value")]
+    public double? Value { get; set; }
+
+    [JsonPropertyName("percentile")]
+    public double? Percentile { get; set; }
+}
+
+internal sealed class ApiMigrationSource
+{
+    [JsonPropertyName("domain")]
+    public string? Domain { get; set; }
+
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+}
+
+internal sealed class ApiRepositoryRef
+{
+    [JsonPropertyName("slug")]
+    public string Slug { get; set; } = "";
+}

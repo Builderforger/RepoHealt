@@ -24,13 +24,15 @@ public static class RepoHealthScore
             ActivityCategory.Evaluate(facts),
 
             CategoryResult.NotEnoughData("CI/CD", CiWeight,
-                "статусы сборок закрыты для чужих репозиториев"),
+                "статусы сборок доступны только участникам репозитория; " +
+                "с текущими правами не отдаются"),
 
             CategoryResult.NotEnoughData("Issues", IssuesWeight,
                 "данные о задачах пока не собираются"),
 
             CategoryResult.NotEnoughData("Security", SecurityWeight,
-                "результаты сканирования закрыты для чужих репозиториев"),
+                "результаты AppSec доступны только участникам репозитория; " +
+                "с текущими правами не отдаются"),
 
             CategoryResult.NotEnoughData("Состояние кода", CodeHealthWeight,
                 "анализ кода пока не реализован")

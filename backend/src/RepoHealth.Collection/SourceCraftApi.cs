@@ -1,0 +1,69 @@
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace RepoHealth.Collection;
+
+/// Читает каталог открытых репозиториев SourceCraft.
+public sealed class SourceCraftApi : IDisposable
+{
+    private const string BaseAddress = "https://api.sourcecraft.tech";
+    private const int PageSize = 100;
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        // Счётчики приходят строками, а не числами.
+        NumberHandling = JsonNumberHandling.AllowReadingFromString
+    };
+
+    private readonly HttpClient _http;
+
+    public SourceCraftApi(string token)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("Нужен токен доступа SourceCraft.", nameof(token));
+
+        _http = new HttpClient { BaseAddress = new Uri(BaseAddress), Timeout = TimeSpan.FromSeconds(60) };
+        _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+
+    /// Проходит каталог постранично и отдаёт репозитории по мере чтения.
+    /// limit = 0 означает «весь каталог».
+    internal async IAsyncEnumerable<ApiRepository> DiscoverAsync(
+        int limit,
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancel = default)
+    {
+        var pageToken = "";
+        var returned = 0;
+
+        while (true)
+        {
+            var url = $"/repos?page_size={PageSize}&page_token={Uri.EscapeDataString(pageToken)}";
+
+            var answer = await _http.GetAsync(url, cancel);
+            answer.EnsureSuccessStatusCode();
+
+            var page = JsonSerializer.Deserialize<DiscoverResponse>(
+                await answer.Content.ReadAsStringAsync(cancel), JsonOptions);
+
+            if (page is null || page.Repositories.Count == 0)
+                yield break;
+
+            foreach (var repo in page.Repositories)
+            {
+                yield return repo;
+
+                returned++;
+                if (limit > 0 && returned >= limit)
+                    yield break;
+            }
+
+            if (string.IsNullOrEmpty(page.NextPageToken))
+                yield break;
+
+            pageToken = page.NextPageToken;
+        }
+    }
+
+    public void Dispose() => _http.Dispose();
+}

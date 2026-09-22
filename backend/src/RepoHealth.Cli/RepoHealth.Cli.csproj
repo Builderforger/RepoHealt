@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\RepoHealth.Contracts\RepoHealth.Contracts.csproj" />
     <ProjectReference Include="..\RepoHealth.Scoring\RepoHealth.Scoring.csproj" />
+    <ProjectReference Include="..\RepoHealth.Collection\RepoHealth.Collection.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
