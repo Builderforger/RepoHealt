@@ -61,6 +61,17 @@ internal sealed class ApiRepository
     public string FullName => $"{Organization?.Slug ?? ""}/{Slug}";
 }
 
+/// Ответ метода «участники репозитория».
+/// Сами профили нам не нужны — нужно только их количество.
+internal sealed class ContributorsResponse
+{
+    [JsonPropertyName("contributors")]
+    public List<object> Contributors { get; set; } = [];
+
+    [JsonPropertyName("next_page_token")]
+    public string? NextPageToken { get; set; }
+}
+
 internal sealed class ApiOrganization
 {
     [JsonPropertyName("slug")]

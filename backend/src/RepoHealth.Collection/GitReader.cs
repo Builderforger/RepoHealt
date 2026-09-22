@@ -139,7 +139,7 @@ internal static class GitReader
         }
     }
 
-    // ---------- запуск git ----------
+    // запуск git 
 
     private sealed record GitOutput(bool Ok, int ExitCode, string Output, string Error);
 

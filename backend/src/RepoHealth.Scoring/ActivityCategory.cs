@@ -37,7 +37,20 @@ public static class ActivityCategory
         }
 
         var commits = git?.Commits90 ?? 0;
-        var authors = git?.Authors90 ?? 0;
+
+        // Участников берём у платформы: она склеивает разные почты
+        // одного человека. Подписи в коммитах — запасной вариант,
+        // они завышают счёт и тянут за собой чужую историю.
+        var contributors = facts.Catalog?.Contributors;
+        var people = contributors ?? git?.Authors90 ?? 0;
+
+        var peopleExplanation = contributors is not null
+            ? $"{contributors} участников по данным SourceCraft " +
+              $"(за последние 90 дней коммитили {git?.Authors90 ?? 0}), " +
+              $"для полного балла нужно {AuthorsForFullScore}"
+            : $"{people} авторов за 90 дней по подписям в коммитах " +
+              $"(список участников недоступен), " +
+              $"для полного балла нужно {AuthorsForFullScore}";
 
         var freshness = Scales.Fades(daysSinceCommit, FreshDays, StaleDays) ?? 0;
 
@@ -52,8 +65,8 @@ public static class ActivityCategory
                 $"{commits} коммитов за 90 дней, для полного балла нужно {CommitsForFullScore}"),
 
             CategoryTools.Part("люди", 30,
-                Scales.Grows(authors, AuthorsForFullScore),
-                $"{authors} авторов за 90 дней, для полного балла нужно {AuthorsForFullScore}")
+                Scales.Grows(people, AuthorsForFullScore),
+                peopleExplanation)
         };
 
         return new CategoryResult

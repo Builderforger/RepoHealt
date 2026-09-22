@@ -42,6 +42,9 @@ public static class RepoHealthScore
         {
             Repo = facts.Catalog?.Name ?? "",
             Url = facts.Catalog?.Url ?? "",
+            Language = facts.Catalog?.Language?.Name,
+            Likes = facts.Catalog?.Likes,
+            LastActivity = facts.Catalog?.UpdatedAt,
             MethodologyVersion = MethodologyVersion,
             Score = Combine(categories),
             Categories = categories

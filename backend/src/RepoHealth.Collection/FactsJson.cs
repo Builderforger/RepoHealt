@@ -11,8 +11,6 @@ public static class FactsJson
     private static readonly JsonSerializerOptions Options = new()
     {
         WriteIndented = true,
-        // Без этого русские буквы уезжают в абв
-        // и файл невозможно читать глазами.
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
     };
 

@@ -25,6 +25,9 @@ if (args.Length == 0)
 if (args[0] == "collect")
     return await CollectAsync(args);
 
+if (args[0] == "export")
+    return Export(args);
+
 var path = args[0];
 var asJson = args.Contains("--json");
 
@@ -58,6 +61,53 @@ else
 return 0;
 
 
+/// Считает отчёты по всем файлам фактов и складывает их
+/// в один файл — по одному отчёту на строку. Такой файл
+/// удобно читать сайту: он загружает его в свою базу.
+static int Export(string[] args)
+{
+    if (args.Length < 3)
+    {
+        Console.Error.WriteLine("Укажите папку и файл: repohealth export <папка фактов> <файл.jsonl>");
+        return 1;
+    }
+
+    var factsFolder = args[1];
+    var outputFile = args[2];
+
+    if (!Directory.Exists(factsFolder))
+    {
+        Console.Error.WriteLine($"Папка не найдена: {factsFolder}");
+        return 1;
+    }
+
+    var options = new JsonSerializerOptions
+    {
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
+
+    var analyzedAt = DateTimeOffset.UtcNow;
+    var written = 0;
+
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(outputFile))!);
+
+    // UTF8Encoding(false) — без отметки в начале файла,
+    // иначе первая строка не разберётся как JSON.
+    using var output = new StreamWriter(outputFile, append: false, new UTF8Encoding(false));
+
+    foreach (var file in Directory.GetFiles(factsFolder, "*.json"))
+    {
+        var report = Evaluate(file);
+        report.AnalyzedAt = analyzedAt;
+
+        output.WriteLine(JsonSerializer.Serialize(report, options));
+        written++;
+    }
+
+    Console.WriteLine($"Записано отчётов: {written} → {outputFile}");
+    return 0;
+}
+
 static async Task<int> CollectAsync(string[] args)
 {
     if (args.Length < 2)
@@ -86,8 +136,7 @@ static async Task<int> CollectAsync(string[] args)
 
     using var collector = new FactsCollector(token);
 
-    var progress = new Progress<string>(message =>
-        Console.WriteLine("  " + message));
+    var progress = new Progress<string>(message => Console.WriteLine("  " + message));
 
     Console.WriteLine(limit > 0
         ? $"Собираю факты по {limit} репозиториям в {folder}"

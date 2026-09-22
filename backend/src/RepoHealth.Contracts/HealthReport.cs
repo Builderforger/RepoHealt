@@ -23,6 +23,17 @@ public class HealthReport
     [JsonPropertyName("methodology_version")]
     public string MethodologyVersion { get; set; } = "";
 
+    /// Поля для страницы рейтинга: по ТЗ там нужны язык,
+    /// лайки и дата последней активности.
+    [JsonPropertyName("language")]
+    public string? Language { get; set; }
+
+    [JsonPropertyName("likes")]
+    public double? Likes { get; set; }
+
+    [JsonPropertyName("last_activity")]
+    public string? LastActivity { get; set; }
+
     [JsonPropertyName("categories")]
     public List<CategoryResult> Categories { get; set; } = [];
 

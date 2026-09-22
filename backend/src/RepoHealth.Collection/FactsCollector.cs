@@ -43,7 +43,7 @@ public sealed class FactsCollector : IDisposable
             new ParallelOptions { MaxDegreeOfParallelism = Parallelism, CancellationToken = cancel },
             async (repo, token) =>
             {
-                var facts = Collect(repo, moment);
+                var facts = await CollectAsync(repo, moment, token);
 
                 var file = Path.Combine(outputFolder, FileNameFor(repo));
                 await File.WriteAllTextAsync(file, FactsJson.Write(facts), token);
@@ -56,7 +56,8 @@ public sealed class FactsCollector : IDisposable
     }
 
     /// Собирает факты по одному репозиторию.
-    internal static RepoFacts Collect(ApiRepository repo, DateTimeOffset now)
+    internal async Task<RepoFacts> CollectAsync(
+        ApiRepository repo, DateTimeOffset now, CancellationToken cancel = default)
     {
         var facts = new RepoFacts
         {
@@ -64,6 +65,23 @@ public sealed class FactsCollector : IDisposable
             Git = new Git(),
             Notes = []
         };
+
+        // Участников берём у платформы, а не из подписей в коммитах:
+        // она связывает разные почты одного человека с его аккаунтом.
+        var organization = repo.Organization?.Slug ?? "";
+
+        facts.Catalog.Contributors =
+            await _api.CountContributorsAsync(organization, repo.Slug, cancel);
+
+        if (facts.Catalog.Contributors is null)
+        {
+            facts.Notes.Add(new Note
+            {
+                Source = "api",
+                Operation = "contributors",
+                Reason = "список участников недоступен"
+            });
+        }
 
         if (repo.Parent is not null)
         {

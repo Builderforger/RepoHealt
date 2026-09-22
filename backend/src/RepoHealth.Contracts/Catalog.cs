@@ -26,6 +26,13 @@ public class Catalog
     [JsonPropertyName("counters")]
     public Counters? Counters { get; set; } = new();
 
+    /// Число участников по данным SourceCraft.
+    /// Берётся отдельным методом API, а не из подписей в коммитах:
+    /// платформа сама связывает разные почты одного человека.
+    /// null означает, что получить не удалось.
+    [JsonPropertyName("contributors")]
+    public int? Contributors { get; set; }
+
     [JsonPropertyName("migrated_from")]
     public string? MigratedFrom { get; set; }
 

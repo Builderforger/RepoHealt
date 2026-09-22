@@ -65,5 +65,52 @@ public sealed class SourceCraftApi : IDisposable
         }
     }
 
+    /// Считает участников репозитория. Платформа сама склеивает
+    /// разные почты одного человека, поэтому это число точнее,
+    /// чем подсчёт подписей в коммитах.
+    /// Возвращает null, если метод недоступен.
+    public async Task<int?> CountContributorsAsync(
+        string org, string slug, CancellationToken cancel = default)
+    {
+        const int maxPages = 20;
+
+        var total = 0;
+        var pageToken = "";
+
+        for (var page = 0; page < maxPages; page++)
+        {
+            var url = $"/repos/{Uri.EscapeDataString(org)}/{Uri.EscapeDataString(slug)}" +
+                      $"/contributors?page_size=100&page_token={Uri.EscapeDataString(pageToken)}";
+
+            HttpResponseMessage answer;
+            try
+            {
+                answer = await _http.GetAsync(url, cancel);
+            }
+            catch (HttpRequestException)
+            {
+                return null;
+            }
+
+            if (!answer.IsSuccessStatusCode)
+                return null;
+
+            var body = JsonSerializer.Deserialize<ContributorsResponse>(
+                await answer.Content.ReadAsStringAsync(cancel), JsonOptions);
+
+            if (body is null)
+                return null;
+
+            total += body.Contributors.Count;
+
+            if (string.IsNullOrEmpty(body.NextPageToken))
+                return total;
+
+            pageToken = body.NextPageToken;
+        }
+
+        return total;
+    }
+
     public void Dispose() => _http.Dispose();
 }
