@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}{{ report.repo }} — здоровье репозитория{% endblock %}
+
+{% block content %}
+<p class="back"><a href="/">← к рейтингу</a></p>
+
+<div class="headline">
+    <div>
+        <h1>{{ report.repo }}</h1>
+        <p class="links">
+            <a href="{{ report.url }}" target="_blank" rel="noopener">открыть на SourceCraft</a>
+            &nbsp;·&nbsp;
+            <a href="/repo/{{ report.repo }}/report.md">скачать отчёт (Markdown)</a>
+        </p>
+    </div>
+
+    <div class="total">
+        {% if report.score is none %}
+        <span class="no-data big">нет оценки</span>
+        {% else %}
+        <span class="score big score-{{ 'high' if report.score >= 70 else ('mid' if report.score >= 40 else 'low') }}">
+            {{ '%.0f'|format(report.score) }}
+        </span>
+        <span class="of">из 100</span>
+        {% endif %}
+    </div>
+</div>
+
+<p class="summary">
+    {% if report.language %}Язык: {{ report.language }}. {% endif %}
+    {% if report.likes is not none %}Лайки: {{ '%.0f'|format(report.likes) }}. {% endif %}
+    {% if report.last_activity %}Последняя активность: {{ report.last_activity[:10] }}. {% endif %}
+    {% if report.analyzed_at %}Проанализирован: {{ report.analyzed_at[:10] }}. {% endif %}
+    Методика {{ report.methodology_version }}.
+</p>
+
+<h2>Из чего сложилась оценка</h2>
+
+{% for category in scored %}
+<section class="category">
+    <div class="category-head">
+        <h3>{{ category.name }}</h3>
+        <div>
+            <span class="score">{{ '%.0f'|format(category.score) }}</span>
+            <span class="weight">вес {{ '%.0f'|format(category.applied_weight) }}%</span>
+        </div>
+    </div>
+
+    <table class="parts">
+        {% for part in category.parts %}
+        <tr>
+            <td class="part-name">{{ part.name }}</td>
+            <td class="part-bar">
+                <div class="bar">
+                    <div class="fill" style="width: {{ (part.points / part.max_points * 100) if part.max_points else 0 }}%"></div>
+                </div>
+            </td>
+            <td class="part-points">{{ '%.0f'|format(part.points) }} / {{ '%.0f'|format(part.max_points) }}</td>
+            <td class="part-why">{{ part.explanation }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+{% endfor %}
+
+{% if missing %}
+<h2>Нет данных</h2>
+
+<p class="note">
+    Эти категории не участвовали в расчёте. Их вес распределён между остальными —
+    отсутствие данных не снижает оценку проекта.
+</p>
+
+<table class="missing">
+    {% for category in missing %}
+    <tr>
+        <td class="part-name">{{ category.name }}</td>
+        <td class="part-why">{{ category.no_data_reason }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,181 @@
+:root {
+    --ink: #1a1d23;
+    --dim: #6b7280;
+    --line: #e5e7eb;
+    --bg: #ffffff;
+    --panel: #f8f9fb;
+    --high: #16a34a;
+    --mid: #d97706;
+    --low: #dc2626;
+    --link: #2563eb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font: 15px/1.5 -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+}
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+header {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--line);
+}
+
+.logo { font-size: 18px; font-weight: 700; color: var(--ink); }
+.tagline { color: var(--dim); font-size: 13px; }
+
+main { max-width: 1060px; margin: 0 auto; padding: 28px 32px 60px; }
+
+footer {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 20px 32px 40px;
+    color: var(--dim);
+    font-size: 13px;
+}
+
+h1 { font-size: 24px; margin: 0 0 8px; }
+h2 { font-size: 18px; margin: 32px 0 12px; }
+h3 { font-size: 16px; margin: 0; }
+
+.summary, .note { color: var(--dim); margin: 0 0 20px; }
+.back { margin: 0 0 16px; }
+
+/* ---------- фильтры ---------- */
+
+.filters {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding: 14px 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 18px;
+}
+
+.filters label { font-size: 13px; color: var(--dim); }
+
+.filters select {
+    margin-left: 8px;
+    padding: 5px 8px;
+    font: inherit;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+}
+
+/* ---------- таблицы ---------- */
+
+table { width: 100%; border-collapse: collapse; }
+
+.rating th {
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--dim);
+    font-weight: 600;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+.rating td {
+    padding: 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+.rating tbody tr:hover { background: var(--panel); }
+
+.place { color: var(--dim); width: 48px; }
+.dim { color: var(--dim); font-size: 13px; }
+.empty { padding: 40px; text-align: center; color: var(--dim); }
+
+/* ---------- оценки ---------- */
+
+.score { font-weight: 700; font-variant-numeric: tabular-nums; }
+.score-high { color: var(--high); }
+.score-mid  { color: var(--mid); }
+.score-low  { color: var(--low); }
+
+.score.big { font-size: 42px; line-height: 1; }
+.of { color: var(--dim); font-size: 13px; }
+
+.no-data { color: var(--dim); font-style: italic; }
+.no-data.big { font-size: 20px; }
+
+/* ---------- страница проекта ---------- */
+
+.headline {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+}
+
+.total { text-align: right; white-space: nowrap; }
+.links { margin: 0; font-size: 14px; }
+
+.category {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+
+.category-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.weight { color: var(--dim); font-size: 13px; margin-left: 10px; }
+
+.parts td, .missing td { padding: 6px 8px; vertical-align: middle; }
+.part-name { width: 150px; }
+.part-bar { width: 140px; }
+.part-points { width: 80px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.part-why { color: var(--dim); font-size: 13px; }
+
+.bar {
+    height: 6px;
+    background: var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.fill { height: 100%; background: var(--link); border-radius: 3px; }
+
+.missing { border: 1px solid var(--line); border-radius: 8px; }
+.missing .part-name { font-weight: 600; }
+
+/* ---------- страницы ---------- */
+
+.pages {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 18px;
+    color: var(--dim);
+    font-size: 14px;
+}
+
+@media (max-width: 720px) {
+    main, header, footer { padding-left: 16px; padding-right: 16px; }
+    .headline { flex-direction: column; }
+    .total { text-align: left; }
+    .filters { flex-direction: column; align-items: flex-start; gap: 10px; }
+}

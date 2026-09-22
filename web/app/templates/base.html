@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Здоровье репозиториев SourceCraft{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <a class="logo" href="/">Repo Health</a>
+        <span class="tagline">оценка здоровья открытых репозиториев SourceCraft</span>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        Оценка считается по открытым данным SourceCraft и объясняется на странице каждого проекта.
+    </footer>
+</body>
+</html>

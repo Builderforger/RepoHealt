@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Рейтинг здоровья</h1>
+
+<p class="summary">
+    Проектов в рейтинге: <strong>{{ summary.total or 0 }}</strong>{% if summary.average %},
+    средняя оценка <strong>{{ '%.0f'|format(summary.average) }}</strong>{% endif %}{% if summary.analyzed_at %},
+    последний анализ {{ summary.analyzed_at[:10] }}{% endif %}.
+</p>
+
+<form class="filters" method="get" action="/">
+    <label>
+        Язык
+        <select name="language" onchange="this.form.submit()">
+            <option value="">все</option>
+            {% for row in languages %}
+            <option value="{{ row.language }}" {% if row.language == language %}selected{% endif %}>
+                {{ row.language }} ({{ row.amount }})
+            </option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label>
+        Сортировка
+        <select name="sort" onchange="this.form.submit()">
+            <option value="score" {% if sort == 'score' %}selected{% endif %}>по оценке здоровья</option>
+            <option value="likes" {% if sort == 'likes' %}selected{% endif %}>по лайкам</option>
+            <option value="activity" {% if sort == 'activity' %}selected{% endif %}>по последней активности</option>
+        </select>
+    </label>
+
+    <noscript><button type="submit">Применить</button></noscript>
+</form>
+
+<table class="rating">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Проект</th>
+            <th>Оценка</th>
+            <th>Лайки</th>
+            <th>Язык</th>
+            <th>Активность</th>
+            <th>Категорий</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td class="place">{{ first_place + loop.index0 }}</td>
+            <td><a href="/repo/{{ row.repo }}">{{ row.repo }}</a></td>
+            <td>
+                {% if row.score is none %}
+                <span class="no-data">нет оценки</span>
+                {% else %}
+                <span class="score score-{{ 'high' if row.score >= 70 else ('mid' if row.score >= 40 else 'low') }}">
+                    {{ '%.0f'|format(row.score) }}
+                </span>
+                {% endif %}
+            </td>
+            <td>{{ '%.0f'|format(row.likes) if row.likes is not none else '—' }}</td>
+            <td>{{ row.language or '—' }}</td>
+            <td>{{ row.last_activity[:10] if row.last_activity else '—' }}</td>
+            <td class="dim">{{ row.scored }} из 6</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" class="empty">
+                Пока ничего не загружено. Соберите факты и выполните импорт отчётов.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if pages > 1 %}
+<nav class="pages">
+    {% if page > 1 %}
+    <a href="/?language={{ language }}&sort={{ sort }}&page={{ page - 1 }}">← назад</a>
+    {% endif %}
+
+    <span>страница {{ page }} из {{ pages }}</span>
+
+    {% if page < pages %}
+    <a href="/?language={{ language }}&sort={{ sort }}&page={{ page + 1 }}">вперёд →</a>
+    {% endif %}
+</nav>
+{% endif %}
+{% endblock %}
