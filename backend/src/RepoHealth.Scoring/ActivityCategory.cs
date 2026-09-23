@@ -1,4 +1,4 @@
-using RepoHealth.Contracts;
+﻿using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring;
 
@@ -74,7 +74,7 @@ public static class ActivityCategory
             Name = Name,
             Status = CategoryStatus.Scored,
             BaseWeight = BaseWeight,
-            Score = Math.Round(parts.Sum(part => part.Points), 1),
+            Score = CategoryTools.Combine(parts),
             Parts = parts
         };
     }

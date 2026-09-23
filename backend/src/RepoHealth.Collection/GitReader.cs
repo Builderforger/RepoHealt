@@ -56,7 +56,20 @@ internal static class GitReader
         var lastState = RunGit(null, "clone", "--no-checkout", "--depth", "1", "--quiet", url, folder);
 
         if (lastState.Ok && Directory.Exists(Path.Combine(folder, ".git")))
+        {
+            // Истории за год нет — взяли только последний срез.
+            // Значит число авторов и доля главного автора посчитаны
+            // по одному коммиту и о проекте ничего не говорят.
+            notes.Add(new Note
+            {
+                Source = "git",
+                Operation = "history",
+                Reason = "за последний год коммитов не было, взят только последний срез: " +
+                         "числу авторов в истории доверять нельзя"
+            });
+
             return true;
+        }
 
         notes.Add(firstFailure);
         notes.Add(Failure("clone_depth_1", lastState));
@@ -73,9 +86,13 @@ internal static class GitReader
             return;
         }
 
-        var readmeName = listing.Output
+        facts.RootFiles = listing.Output
             .Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Select(line => line.Trim())
+            .Where(name => name.Length > 0)
+            .ToList();
+
+        var readmeName = facts.RootFiles
             .FirstOrDefault(name => name.StartsWith("readme", StringComparison.OrdinalIgnoreCase));
 
         if (readmeName is null)

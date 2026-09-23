@@ -38,7 +38,7 @@ public static class RepoHealthScore
                 "анализ кода пока не реализован")
         };
 
-        return new HealthReport
+        var report = new HealthReport
         {
             Repo = facts.Catalog?.Name ?? "",
             Url = facts.Catalog?.Url ?? "",
@@ -49,6 +49,12 @@ public static class RepoHealthScore
             Score = Combine(categories),
             Categories = categories
         };
+
+        // Рекомендации строятся после сведения: им нужны веса,
+        // которые категории получили после перенормировки.
+        report.Recommendations = Recommendations.For(report);
+
+        return report;
     }
 
     /// Сводит категории в итоговый балл.

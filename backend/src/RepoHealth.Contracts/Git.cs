@@ -24,4 +24,11 @@ public class Git
 
     [JsonPropertyName("main_author_share")]
     public double MainAuthorShare { get; set; }
+
+    /// Имена файлов и папок в корне проекта.
+    /// По ним видно лицензию, описание сборки, папку документации,
+    /// настройки CI и подготовку к работе с агентами.
+    /// Пустой список означает, что список файлов не собирался.
+    [JsonPropertyName("root_files")]
+    public List<string> RootFiles { get; set; } = [];
 }

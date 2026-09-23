@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring.Tests;
@@ -65,24 +65,24 @@ public class DocumentationCategoryTests
     [Fact]
     public void HalfOfRequiredLinesGivesHalfOfVolumePoints()
     {
-        // 60 непустых строк при потолке 120 — половина от 30 баллов
+        // 60 непустых строк при потолке 120 — половина от 20 баллов
         var readme = string.Join("\n", Enumerable.Repeat("текст строки", 60));
 
         var volume = PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "объём");
 
-        Assert.Equal(15, volume.Points, 1);
-        Assert.Equal(30, volume.MaxPoints);
+        Assert.Equal(10, volume.Points, 1);
+        Assert.Equal(20, volume.MaxPoints);
     }
 
     [Fact]
     public void HalfOfRequiredHeadingsGivesHalfOfStructurePoints()
     {
-        // 6 заголовков при потолке 12 — половина от 25 баллов
+        // 6 заголовков при потолке 12 — половина от 15 баллов
         var readme = string.Join("\n", Enumerable.Range(1, 6).Select(n => $"# Глава {n}"));
 
         var structure = PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "структура");
 
-        Assert.Equal(12.5, structure.Points, 1);
+        Assert.Equal(7.5, structure.Points, 1);
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class DocumentationCategoryTests
     {
         var result = DocumentationCategory.Evaluate(Facts("# Установка\nделай так"));
 
-        Assert.Equal(20, PartNamed(result, "установка").Points, 1);
+        Assert.Equal(15, PartNamed(result, "установка").Points, 1);
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class DocumentationCategoryTests
         // слово есть, но отдельного раздела под него нет
         var result = DocumentationCategory.Evaluate(Facts("# Заголовок\nсначала build, потом всё"));
 
-        Assert.Equal(10, PartNamed(result, "установка").Points, 1);
+        Assert.Equal(7.5, PartNamed(result, "установка").Points, 1);
     }
 
     [Fact]
@@ -124,7 +124,7 @@ public class DocumentationCategoryTests
 
     [Theory]
     [InlineData("тут просто текст", 0)]
-    [InlineData("вот код:\n```\nx = 1\n```", 10)]
+    [InlineData("вот код:\n```\nx = 1\n```", 5)]
     public void CodeBlocksArePaidForOnce(string readme, double expected)
     {
         Assert.Equal(expected, PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "примеры кода").Points, 1);
@@ -155,12 +155,12 @@ public class DocumentationCategoryTests
         var result = DocumentationCategory.Evaluate(Facts(readme));
 
         // разделы и примеры кода взяты полностью
-        Assert.Equal(20, PartNamed(result, "установка").Points, 1);
-        Assert.Equal(15, PartNamed(result, "использование").Points, 1);
-        Assert.Equal(10, PartNamed(result, "примеры кода").Points, 1);
+        Assert.Equal(15, PartNamed(result, "установка").Points, 1);
+        Assert.Equal(10, PartNamed(result, "использование").Points, 1);
+        Assert.Equal(5, PartNamed(result, "примеры кода").Points, 1);
 
         // а объёма и структуры не хватает — README короткий
-        Assert.True(PartNamed(result, "объём").Points < 30);
+        Assert.True(PartNamed(result, "объём").Points < 20);
         Assert.True(result.Score > 45);
     }
 
@@ -206,7 +206,45 @@ public class DocumentationCategoryTests
     {
         var result = DocumentationCategory.Evaluate(Facts("# Установка\n```\nкод\n```"));
 
-        Assert.Equal(result.Parts.Sum(part => part.Points), result.Score, 1);
+        // балл категории — доля от того, что части могли дать вместе
+        var possible = result.Parts.Sum(part => part.MaxPoints);
+        var expected = result.Parts.Sum(part => part.Points) / possible * 100;
+
+        Assert.Equal(expected, result.Score, 1);
+    }
+
+    // ---------- словари должны работать на обоих языках ----------
+
+    [Theory]
+    [InlineData("## Installation")]
+    [InlineData("## Quick start")]
+    [InlineData("## Download binary")]
+    [InlineData("## Установка")]
+    [InlineData("## Быстрый старт")]
+    [InlineData("## Начало работы")]
+    [InlineData("## Требования")]
+    public void InstallSectionIsRecognisedInBothLanguages(string heading)
+    {
+        // На SourceCraft много русских README. Пока словарь был
+        // только английским, раздел «Быстрый старт» не засчитывался,
+        // и хорошие проекты теряли баллы ни за что.
+        var result = DocumentationCategory.Evaluate(Facts($"# Проект\n\n{heading}\nтекст"));
+
+        Assert.Equal(15, PartNamed(result, "установка").Points, 1);
+    }
+
+    [Theory]
+    [InlineData("## Usage")]
+    [InlineData("## Examples")]
+    [InlineData("## Использование")]
+    [InlineData("## Запуск")]
+    [InlineData("## Возможности")]
+    [InlineData("## Примеры")]
+    public void UsageSectionIsRecognisedInBothLanguages(string heading)
+    {
+        var result = DocumentationCategory.Evaluate(Facts($"# Проект\n\n{heading}\nтекст"));
+
+        Assert.Equal(10, PartNamed(result, "использование").Points, 1);
     }
 
     // ---------- проверка на настоящих данных ----------

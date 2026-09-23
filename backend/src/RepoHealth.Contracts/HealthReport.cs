@@ -37,6 +37,10 @@ public class HealthReport
     [JsonPropertyName("categories")]
     public List<CategoryResult> Categories { get; set; } = [];
 
+    /// Что стоит исправить, по убыванию пользы.
+    [JsonPropertyName("recommendations")]
+    public List<Recommendation> Recommendations { get; set; } = [];
+
     /// Когда собирали данные. Проставляет тот, кто их собирал:
     /// сам расчёт о текущем времени ничего не знает.
     [JsonPropertyName("analyzed_at")]
