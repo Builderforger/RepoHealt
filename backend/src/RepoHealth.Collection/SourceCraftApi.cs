@@ -81,6 +81,53 @@ public sealed class SourceCraftApi : IDisposable
             await answer.Content.ReadAsStringAsync(cancel), JsonOptions);
     }
 
+    /// Задачи репозитория. Возвращает null, если прочитать не удалось —
+    /// это не то же самое, что «задач нет».
+    internal async Task<List<ApiIssue>?> GetIssuesAsync(
+        string org, string slug, CancellationToken cancel = default)
+    {
+        // Больше тысячи задач для оценки здоровья не нужно:
+        // картину дают и первые страницы.
+        const int maxPages = 10;
+
+        var issues = new List<ApiIssue>();
+        var pageToken = "";
+
+        for (var page = 0; page < maxPages; page++)
+        {
+            var url = $"/repos/{Uri.EscapeDataString(org)}/{Uri.EscapeDataString(slug)}" +
+                      $"/issues?page_size=100&page_token={Uri.EscapeDataString(pageToken)}";
+
+            HttpResponseMessage answer;
+            try
+            {
+                answer = await _http.GetAsync(url, cancel);
+            }
+            catch (HttpRequestException)
+            {
+                return null;
+            }
+
+            if (!answer.IsSuccessStatusCode)
+                return null;
+
+            var body = JsonSerializer.Deserialize<IssuesResponse>(
+                await answer.Content.ReadAsStringAsync(cancel), JsonOptions);
+
+            if (body is null)
+                return null;
+
+            issues.AddRange(body.Issues);
+
+            if (string.IsNullOrEmpty(body.NextPageToken))
+                break;
+
+            pageToken = body.NextPageToken;
+        }
+
+        return issues;
+    }
+
     /// Считает участников репозитория. Платформа сама склеивает
     /// разные почты одного человека, поэтому это число точнее,
     /// чем подсчёт подписей в коммитах.

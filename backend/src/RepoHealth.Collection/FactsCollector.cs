@@ -134,9 +134,77 @@ public sealed class FactsCollector : IDisposable
         var fromGit = GitReader.Read(cloneUrl, now);
 
         facts.Git = fromGit.Facts;
+        facts.Code = fromGit.Code;
         facts.Notes.AddRange(fromGit.Notes);
 
+        facts.Issues = await ReadIssuesAsync(organization, repo.Slug, facts.Notes, now, cancel);
+
         AddOriginWarnings(facts, repo, now);
+
+        return facts;
+    }
+
+    /// Сводит задачи в несколько чисел.
+    /// null означает «прочитать не удалось», а не «задач нет».
+    private async Task<IssuesFacts?> ReadIssuesAsync(
+        string org, string slug, List<Note> notes, DateTimeOffset now, CancellationToken cancel)
+    {
+        var issues = await _api.GetIssuesAsync(org, slug, cancel);
+
+        if (issues is null)
+        {
+            notes.Add(new Note
+            {
+                Source = "api",
+                Operation = "issues",
+                Reason = "задачи недоступны с текущими правами"
+            });
+
+            return null;
+        }
+
+        var facts = new IssuesFacts { Total = issues.Count };
+        var daysToClose = new List<double>();
+
+        foreach (var issue in issues)
+        {
+            var status = issue.Status?.StatusType ?? "";
+
+            switch (status)
+            {
+                case "completed":
+                    facts.Closed++;
+                    break;
+                case "cancelled":
+                    facts.Cancelled++;
+                    break;
+                default:
+                    facts.Open++;
+
+                    // Открытая задача, которой давно не касались, — зависшая.
+                    if (DateTimeOffset.TryParse(issue.UpdatedAt, out var touched)
+                        && (now - touched).TotalDays > 90)
+                    {
+                        facts.StaleOpen++;
+                    }
+
+                    break;
+            }
+
+            if (status == "completed"
+                && DateTimeOffset.TryParse(issue.CreatedAt, out var born)
+                && DateTimeOffset.TryParse(issue.CompletedAt, out var done)
+                && done > born)
+            {
+                daysToClose.Add((done - born).TotalDays);
+            }
+        }
+
+        if (daysToClose.Count > 0)
+        {
+            daysToClose.Sort();
+            facts.MedianDaysToClose = Math.Round(daysToClose[daysToClose.Count / 2], 1);
+        }
 
         return facts;
     }

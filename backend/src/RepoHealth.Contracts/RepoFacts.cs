@@ -14,6 +14,15 @@ public class RepoFacts
 
     [JsonPropertyName("git")]
     public Git? Git { get; set; } = new();
+
+    /// Состояние кода. null — дерево файлов прочитать не удалось.
+    [JsonPropertyName("code")]
+    public CodeFacts? Code { get; set; }
+
+    /// Задачи. null — прочитать их не удалось,
+    /// и это не то же самое, что «задач нет».
+    [JsonPropertyName("issues")]
+    public IssuesFacts? Issues { get; set; }
     [JsonPropertyName("notes")]
     public List<Note> Notes { get; set; } = [];
 }

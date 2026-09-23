@@ -11,7 +11,20 @@ internal static class GitReader
 {
     private static readonly TimeSpan CommandTimeout = TimeSpan.FromMinutes(3);
 
-    public sealed record Result(Git Facts, List<Note> Notes);
+    public sealed record Result(Git Facts, CodeFacts? Code, List<Note> Notes);
+
+    private static readonly string[] TestMarkers =
+        ["test", "tests", "spec", "specs", "__tests__", "testing", "it"];
+
+    private static readonly string[] QualityConfigs =
+        [
+            ".editorconfig", ".eslintrc", ".eslintrc.json", ".eslintrc.js", "eslint.config.js",
+            ".prettierrc", ".prettierrc.json", "biome.json", ".stylelintrc",
+            "ruff.toml", ".ruff.toml", ".flake8", "setup.cfg", "mypy.ini", ".pylintrc",
+            "detekt-config.yml", "detekt.yml", "diktat-analysis.yml", "ktlint.yml",
+            ".golangci.yml", ".golangci.yaml", ".rubocop.yml", "clippy.toml", "rustfmt.toml",
+            "checkstyle.xml", ".clang-format", ".editorconfig.json", "sonar-project.properties"
+        ];
 
     /// <param name="now">Момент сбора. Передаётся снаружи, чтобы
     /// «дней с последнего коммита» считалось от одной точки для всех
@@ -20,23 +33,25 @@ internal static class GitReader
     {
         var facts = new Git();
         var notes = new List<Note>();
+        CodeFacts? code = null;
 
         var folder = Path.Combine(Path.GetTempPath(), "repohealth-" + Guid.NewGuid().ToString("N"));
 
         try
         {
             if (!TryClone(cloneUrl, folder, notes))
-                return new Result(facts, notes);
+                return new Result(facts, null, notes);
 
             ReadReadme(folder, facts, notes);
             ReadHistory(folder, facts, notes, now);
+            code = ReadCode(folder, notes);
         }
         finally
         {
             DeleteFolder(folder);
         }
 
-        return new Result(facts, notes);
+        return new Result(facts, code, notes);
     }
 
     /// Сначала пробуем забрать историю за год. Если сервер отказал
@@ -156,7 +171,81 @@ internal static class GitReader
         }
     }
 
-    // запуск git 
+    /// Состояние кода. Читаем дерево файлов и ищем в нём недоделки —
+    /// всё прямо в репозитории, без выгрузки кода на диск.
+    private static CodeFacts? ReadCode(string folder, List<Note> notes)
+    {
+        // Длинный формат ls-tree даёт размеры файлов.
+        var listing = RunGit(folder, "ls-tree", "-r", "-l", "HEAD");
+
+        if (!listing.Ok)
+        {
+            notes.Add(Failure("ls_tree_full", listing));
+            return null;
+        }
+
+        var code = new CodeFacts();
+
+        foreach (var line in listing.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            // строка вида: <права> blob <хеш> <размер>\t<путь>
+            var tab = line.IndexOf('\t');
+            if (tab < 0)
+                continue;
+
+            var path = line[(tab + 1)..].Trim();
+            code.FilesTotal++;
+
+            var columns = line[..tab].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (columns.Length >= 4
+                && long.TryParse(columns[3], out var size)
+                && size > code.LargestFileBytes)
+            {
+                code.LargestFileBytes = size;
+            }
+
+            var lowered = path.ToLowerInvariant();
+
+            if (!code.HasTests && LooksLikeTest(lowered))
+                code.HasTests = true;
+
+            code.QualityConfig ??= QualityConfigs.FirstOrDefault(
+                name => lowered == name || lowered.EndsWith("/" + name));
+        }
+
+        if (code.FilesTotal == 0)
+            return null;
+
+        // -I пропускает двоичные файлы, -c даёт число совпадений на файл.
+        var todos = RunGit(folder, "grep", "-I", "-c", "-E", "(TODO|FIXME|HACK)[:( ]", "HEAD");
+
+        // Код возврата 1 у grep означает «ничего не нашлось», это не ошибка.
+        if (todos.Ok || todos.ExitCode == 1)
+        {
+            foreach (var line in todos.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var colon = line.LastIndexOf(':');
+                if (colon > 0 && int.TryParse(line[(colon + 1)..].Trim(), out var found))
+                    code.TodoCount += found;
+            }
+        }
+        else
+        {
+            notes.Add(Failure("grep_todo", todos));
+        }
+
+        return code;
+    }
+
+    private static bool LooksLikeTest(string path) =>
+        path.Split('/', '\\').Any(part =>
+            TestMarkers.Contains(part) ||
+            part.StartsWith("test_") ||
+            part.EndsWith("_test") ||
+            part.Contains(".test.") ||
+            part.Contains(".spec."));
+
+    // запуск git
 
     private sealed record GitOutput(bool Ok, int ExitCode, string Output, string Error);
 

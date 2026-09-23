@@ -27,15 +27,13 @@ public static class RepoHealthScore
                 "статусы сборок доступны только участникам репозитория; " +
                 "с текущими правами не отдаются"),
 
-            CategoryResult.NotEnoughData("Issues", IssuesWeight,
-                "данные о задачах пока не собираются"),
+            IssuesCategory.Evaluate(facts),
 
             CategoryResult.NotEnoughData("Security", SecurityWeight,
                 "результаты AppSec доступны только участникам репозитория; " +
                 "с текущими правами не отдаются"),
 
-            CategoryResult.NotEnoughData("Состояние кода", CodeHealthWeight,
-                "анализ кода пока не реализован")
+            CodeHealthCategory.Evaluate(facts)
         };
 
         var report = new HealthReport

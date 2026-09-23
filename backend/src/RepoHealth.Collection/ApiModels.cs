@@ -72,6 +72,37 @@ internal sealed class ContributorsResponse
     public string? NextPageToken { get; set; }
 }
 
+internal sealed class IssuesResponse
+{
+    [JsonPropertyName("issues")]
+    public List<ApiIssue> Issues { get; set; } = [];
+
+    [JsonPropertyName("next_page_token")]
+    public string? NextPageToken { get; set; }
+}
+
+internal sealed class ApiIssue
+{
+    [JsonPropertyName("created_at")]
+    public string? CreatedAt { get; set; }
+
+    [JsonPropertyName("updated_at")]
+    public string? UpdatedAt { get; set; }
+
+    [JsonPropertyName("completed_at")]
+    public string? CompletedAt { get; set; }
+
+    [JsonPropertyName("status")]
+    public ApiIssueStatus? Status { get; set; }
+}
+
+internal sealed class ApiIssueStatus
+{
+    /// initial, in_progress, paused, completed, cancelled
+    [JsonPropertyName("status_type")]
+    public string? StatusType { get; set; }
+}
+
 internal sealed class ApiOrganization
 {
     [JsonPropertyName("slug")]
