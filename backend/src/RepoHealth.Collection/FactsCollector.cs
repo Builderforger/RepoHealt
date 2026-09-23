@@ -191,12 +191,19 @@ public sealed class FactsCollector : IDisposable
                     break;
             }
 
-            if (status == "completed"
-                && DateTimeOffset.TryParse(issue.CreatedAt, out var born)
-                && DateTimeOffset.TryParse(issue.CompletedAt, out var done)
-                && done > born)
+            if (status == "completed" && DateTimeOffset.TryParse(issue.CreatedAt, out var born))
             {
-                daysToClose.Add((done - born).TotalDays);
+                // Дата закрытия заполнена не всегда. Если её нет,
+                // берём дату последнего изменения: у закрытой задачи
+                // это обычно и есть момент закрытия.
+                var finishedAt = DateTimeOffset.TryParse(issue.CompletedAt, out var done)
+                    ? done
+                    : DateTimeOffset.TryParse(issue.UpdatedAt, out var touched)
+                        ? touched
+                        : (DateTimeOffset?)null;
+
+                if (finishedAt is { } moment && moment > born)
+                    daysToClose.Add((moment - born).TotalDays);
             }
         }
 

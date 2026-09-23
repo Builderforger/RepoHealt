@@ -105,14 +105,23 @@ public class IssuesCategoryTests
     }
 
     [Fact]
-    public void SpeedIsExplainedWhenNothingWasClosedYet()
+    public void SpeedIsSkippedWhenItCannotBeMeasured()
     {
-        var result = IssuesCategory.Evaluate(Facts(new IssuesFacts { Total = 4, Open = 4 }));
+        // У закрытых задач может не быть даты закрытия.
+        // Тогда часть выпадает из категории, а не обнуляется:
+        // за отсутствие данных наказывать нельзя.
+        var result = IssuesCategory.Evaluate(Facts(new IssuesFacts
+        {
+            Total = 10,
+            Open = 0,
+            Closed = 10,
+            MedianDaysToClose = null
+        }));
 
-        var speed = PartNamed(result, "скорость закрытия");
+        Assert.DoesNotContain(result.Parts, part => part.Name == "скорость закрытия");
 
-        Assert.Equal(0, speed.Points);
-        Assert.Contains("не из чего", speed.Explanation);
+        // Всё остальное взято полностью, значит и категория полная.
+        Assert.Equal(100, result.Score, 1);
     }
 
     [Fact]

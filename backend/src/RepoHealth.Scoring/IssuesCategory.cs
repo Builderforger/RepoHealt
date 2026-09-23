@@ -46,10 +46,15 @@ public static class IssuesCategory
                 issues.Open == 0
                     ? "открытых задач нет"
                     : $"{issues.StaleOpen} из {issues.Open} открытых задач " +
-                      "не обновлялись больше 90 дней"),
-
-            Speed(issues)
+                      "не обновлялись больше 90 дней")
         };
+
+        // Скорость закрытия считается не всегда: у закрытых задач
+        // может не быть даты закрытия. Тогда часть не начисляется
+        // и не отнимается — её просто нет, а вес переходит остальным.
+        var speed = Speed(issues);
+        if (speed is not null)
+            parts.Add(speed);
 
         return new CategoryResult
         {
@@ -61,15 +66,13 @@ public static class IssuesCategory
         };
     }
 
-    /// Скорость закрытия. Если ни одна задача ещё не закрыта,
-    /// считать не из чего — часть не начисляется вовсе.
-    private static PartResult Speed(IssuesFacts issues)
+    /// Скорость закрытия. Если посчитать её не из чего,
+    /// возвращаем null — часть выпадает из категории,
+    /// а не обнуляется. Обнулять за отсутствие данных нельзя.
+    private static PartResult? Speed(IssuesFacts issues)
     {
         if (issues.MedianDaysToClose is not { } days)
-        {
-            return CategoryTools.Part("скорость закрытия", 30, 0,
-                "закрытых задач нет, скорость считать не из чего");
-        }
+            return null;
 
         var share = Scales.Fades((int)Math.Round(days), FastDays, SlowDays) ?? 0;
 
