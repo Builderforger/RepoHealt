@@ -12,6 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RepoHealth.Contracts\RepoHealth.Contracts.csproj" />
+    <ProjectReference Include="..\RepoHealth.Collection\RepoHealth.Collection.csproj" />
+    <ProjectReference Include="..\RepoHealth.Scoring\RepoHealth.Scoring.csproj" />
   </ItemGroup>
 
 </Project>

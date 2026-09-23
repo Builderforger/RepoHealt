@@ -65,6 +65,22 @@ public sealed class SourceCraftApi : IDisposable
         }
     }
 
+    /// Карточка одного репозитория. Работает и для закрытых —
+    /// если у токена есть к ним доступ.
+    internal async Task<ApiRepository?> GetRepositoryAsync(
+        string org, string slug, CancellationToken cancel = default)
+    {
+        var url = $"/repos/{Uri.EscapeDataString(org)}/{Uri.EscapeDataString(slug)}";
+
+        var answer = await _http.GetAsync(url, cancel);
+
+        if (!answer.IsSuccessStatusCode)
+            return null;
+
+        return JsonSerializer.Deserialize<ApiRepository>(
+            await answer.Content.ReadAsStringAsync(cancel), JsonOptions);
+    }
+
     /// Считает участников репозитория. Платформа сама склеивает
     /// разные почты одного человека, поэтому это число точнее,
     /// чем подсчёт подписей в коммитах.

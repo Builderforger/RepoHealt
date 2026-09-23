@@ -13,6 +13,8 @@ if (args.Length == 0)
         Сбор фактов о репозиториях SourceCraft и расчёт оценки.
 
           repohealth collect <папка> [--limit N]  собрать факты в папку
+          repohealth analyze <орг>/<проект>       разобрать один проект и выдать отчёт
+          repohealth export <папка> <файл.jsonl>  посчитать отчёты по собранным фактам
           repohealth <файл.json>                  разбор одного проекта
           repohealth <папка>                      таблица по всем файлам папки
           repohealth <файл.json> --json           отчёт в машиночитаемом виде
@@ -27,6 +29,9 @@ if (args[0] == "collect")
 
 if (args[0] == "export")
     return Export(args);
+
+if (args[0] == "analyze")
+    return await AnalyzeAsync(args);
 
 var path = args[0];
 var asJson = args.Contains("--json");
@@ -60,6 +65,50 @@ else
 
 return 0;
 
+
+/// Разбирает один репозиторий и печатает отчёт в JSON.
+/// Токен берётся из переменной окружения, а не из аргументов:
+/// аргументы видны в списке процессов, переменные — нет.
+static async Task<int> AnalyzeAsync(string[] args)
+{
+    if (args.Length < 2 || !args[1].Contains('/'))
+    {
+        Console.Error.WriteLine("Укажите проект: repohealth analyze <организация>/<проект>");
+        return 1;
+    }
+
+    var token = Environment.GetEnvironmentVariable("SC_TOKEN");
+    if (string.IsNullOrWhiteSpace(token))
+    {
+        Console.Error.WriteLine("Нет токена. Задайте переменную окружения SC_TOKEN.");
+        return 1;
+    }
+
+    var parts = args[1].Split('/', 2);
+    var analyzedAt = DateTimeOffset.UtcNow;
+
+    using var collector = new FactsCollector(token);
+
+    var facts = await collector.AnalyseAsync(parts[0], parts[1], analyzedAt);
+
+    if (facts is null)
+    {
+        Console.Error.WriteLine(
+            $"Репозиторий {args[1]} не найден или недоступен по этому токену.");
+        return 2;
+    }
+
+    var report = RepoHealthScore.Evaluate(facts);
+    report.AnalyzedAt = analyzedAt;
+
+    Console.WriteLine(JsonSerializer.Serialize(report, new JsonSerializerOptions
+    {
+        WriteIndented = true,
+        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    }));
+
+    return 0;
+}
 
 /// Считает отчёты по всем файлам фактов и складывает их
 /// в один файл — по одному отчёту на строку. Такой файл

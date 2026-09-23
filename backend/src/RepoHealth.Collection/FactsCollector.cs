@@ -55,6 +55,20 @@ public sealed class FactsCollector : IDisposable
         return saved;
     }
 
+    /// Разбирает один репозиторий по его адресу вида «организация/проект».
+    /// Используется личным кабинетом: пользователь входит своим токеном
+    /// и получает оценку доступного ему проекта, в том числе закрытого.
+    public async Task<RepoFacts?> AnalyseAsync(
+        string org, string slug, DateTimeOffset? now = null, CancellationToken cancel = default)
+    {
+        var repo = await _api.GetRepositoryAsync(org, slug, cancel);
+
+        if (repo is null)
+            return null;
+
+        return await CollectAsync(repo, now ?? DateTimeOffset.UtcNow, cancel);
+    }
+
     /// Собирает факты по одному репозиторию.
     internal async Task<RepoFacts> CollectAsync(
         ApiRepository repo, DateTimeOffset now, CancellationToken cancel = default)
