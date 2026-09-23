@@ -1,0 +1,10 @@
+**/bin/
+**/obj/
+**/.vs/
+**/__pycache__/
+web/.venv/
+web/repohealth.db
+backend/data/
+.git/
+.claude/
+*.md

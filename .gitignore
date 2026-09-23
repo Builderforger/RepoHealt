@@ -488,3 +488,7 @@ $RECYCLE.BIN/
 /web/.venv/
 /web/repohealth.db
 __pycache__/
+
+# Ключи приложения и токены — не в репозиторий
+.env
+.env.local

@@ -64,6 +64,34 @@
 </section>
 {% endfor %}
 
+{% if report.recommendations %}
+<h2>Что улучшить</h2>
+
+<p class="note">
+    Отсортировано по тому, сколько баллов вернёт исправление.
+</p>
+
+<ol class="advice">
+    {% for item in report.recommendations %}
+    <li class="advice-item">
+        <div class="advice-head">
+            <span class="badge badge-{{ item.priority|lower }}">
+                {% if item.priority == 'High' %}высокий{% elif item.priority == 'Medium' %}средний{% else %}низкий{% endif %}
+            </span>
+            <strong>{{ item.problem }}</strong>
+            <span class="gain">+{{ '%.1f'|format(item.expected_gain) }}</span>
+        </div>
+
+        <dl>
+            <dt>Почему важно</dt><dd>{{ item.why }}</dd>
+            <dt>На чём основано</dt><dd>{{ item.evidence }}</dd>
+            <dt>Что сделать</dt><dd>{{ item.action }}</dd>
+        </dl>
+    </li>
+    {% endfor %}
+</ol>
+{% endif %}
+
 {% if missing %}
 <h2>Нет данных</h2>
 

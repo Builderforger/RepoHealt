@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="headline">
+    <div>
+        <h1>Личный кабинет</h1>
+        <p class="summary">{{ user.name }} · <a href="/logout">выйти</a></p>
+    </div>
+</div>
+
+{% if message %}
+<p class="note warning">{{ message }}</p>
+{% endif %}
+
+{% if not has_token %}
+<h2>Токен SourceCraft</h2>
+
+<p class="note">
+    Вход через Яндекс ID отвечает только на вопрос, кто вы. Чтобы прочитать
+    ваши репозитории, нужен персональный токен SourceCraft: главная страница →
+    <strong>Домой</strong> → <strong>Доступ</strong> → <strong>Персональные токены доступа</strong>.
+</p>
+
+<p class="note">
+    Токен хранится только в памяти сервиса на время этого входа.
+    Мы не записываем его в базу и не пишем в журналы.
+</p>
+
+<form class="token-form" method="post" action="/cabinet/token">
+    <input type="password" name="token" placeholder="токен доступа" autocomplete="off" required>
+    <button type="submit">Сохранить на время сеанса</button>
+</form>
+
+{% else %}
+
+<h2>Ваши репозитории</h2>
+
+{% if repositories %}
+<table class="rating">
+    <thead>
+        <tr>
+            <th>Проект</th>
+            <th>Язык</th>
+            <th>Видимость</th>
+            <th>Активность</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for repo in repositories %}
+        <tr>
+            <td><a href="{{ repo.url }}" target="_blank" rel="noopener">{{ repo.name }}</a></td>
+            <td>{{ repo.language or '—' }}</td>
+            <td class="dim">{{ 'закрытый' if repo.private else 'открытый' }}</td>
+            <td class="dim">{{ repo.updated[:10] if repo.updated else '—' }}</td>
+            <td>
+                {% if repo.empty %}
+                <span class="dim">пустой</span>
+                {% else %}
+                <form method="post" action="/cabinet/analyse">
+                    <input type="hidden" name="repo" value="{{ repo.name }}">
+                    <button type="submit">Проанализировать</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="note">Доступных репозиториев не нашлось.</p>
+{% endif %}
+
+<p class="note">
+    <a href="/cabinet/token-reset">указать другой токен</a>
+</p>
+{% endif %}
+
+{% if analysed %}
+<h2>Разобранные проекты</h2>
+
+<table class="rating">
+    <thead>
+        <tr><th>Проект</th><th>Оценка</th><th>Когда</th></tr>
+    </thead>
+    <tbody>
+        {% for row in analysed %}
+        <tr>
+            <td><a href="/cabinet/report/{{ row.repo }}">{{ row.repo }}</a></td>
+            <td>
+                {% if row.score is none %}
+                <span class="no-data">нет оценки</span>
+                {% else %}
+                <span class="score score-{{ 'high' if row.score >= 70 else ('mid' if row.score >= 40 else 'low') }}">
+                    {{ '%.0f'|format(row.score) }}
+                </span>
+                {% endif %}
+            </td>
+            <td class="dim">{{ row.analyzed_at[:10] if row.analyzed_at else '—' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

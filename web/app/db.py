@@ -33,6 +33,19 @@ CREATE TABLE IF NOT EXISTS reports (
 CREATE INDEX IF NOT EXISTS reports_score    ON reports(score DESC);
 CREATE INDEX IF NOT EXISTS reports_likes    ON reports(likes DESC);
 CREATE INDEX IF NOT EXISTS reports_language ON reports(language);
+
+-- Личные разборы лежат отдельно от публичного рейтинга.
+-- Так устроено намеренно: пользователь видит их своим токеном,
+-- и среди них бывают закрытые репозитории, которым в публичной
+-- витрине не место.
+CREATE TABLE IF NOT EXISTS personal_reports (
+    user_id     TEXT NOT NULL,
+    repo        TEXT NOT NULL,
+    score       REAL,
+    analyzed_at TEXT,
+    report      TEXT NOT NULL,
+    PRIMARY KEY (user_id, repo)
+);
 """
 
 
@@ -154,6 +167,57 @@ def report(repo: str) -> dict | None:
     with connect() as connection:
         row = connection.execute(
             "SELECT report FROM reports WHERE repo = ?", (repo,)
+        ).fetchone()
+
+    return json.loads(row["report"]) if row else None
+
+
+# ---------- личные разборы ----------
+
+def save_personal(user_id: str, report: dict):
+    """Сохраняет разбор в личный кабинет пользователя.
+    В публичный рейтинг эти данные не попадают."""
+    with connect() as connection:
+        connection.execute(
+            """
+            INSERT INTO personal_reports (user_id, repo, score, analyzed_at, report)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(user_id, repo) DO UPDATE SET
+                score = excluded.score,
+                analyzed_at = excluded.analyzed_at,
+                report = excluded.report
+            """,
+            (
+                user_id,
+                report.get("repo", ""),
+                report.get("score"),
+                report.get("analyzed_at"),
+                json.dumps(report, ensure_ascii=False),
+            ),
+        )
+
+
+def personal_reports(user_id: str) -> list[dict]:
+    with connect() as connection:
+        rows = connection.execute(
+            """
+            SELECT repo, score, analyzed_at
+            FROM personal_reports
+            WHERE user_id = ?
+            ORDER BY analyzed_at DESC
+            """,
+            (user_id,),
+        ).fetchall()
+
+    return [dict(row) for row in rows]
+
+
+def personal_report(user_id: str, repo: str) -> dict | None:
+    """Отчёт отдаётся только тому, кто его заказывал."""
+    with connect() as connection:
+        row = connection.execute(
+            "SELECT report FROM personal_reports WHERE user_id = ? AND repo = ?",
+            (user_id, repo),
         ).fetchone()
 
     return json.loads(row["report"]) if row else None

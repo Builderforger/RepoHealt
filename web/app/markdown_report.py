@@ -52,6 +52,30 @@ def render(report: dict) -> str:
                 f"{part['max_points']:.0f}: {part['explanation']}"
             )
 
+    recommendations = report.get("recommendations") or []
+
+    if recommendations:
+        titles = {"High": "Высокий приоритет",
+                  "Medium": "Средний приоритет",
+                  "Low": "Низкий приоритет"}
+
+        lines += ["", "## Что улучшить", ""]
+
+        for number, item in enumerate(recommendations, start=1):
+            priority = titles.get(item.get("priority", ""), item.get("priority", ""))
+
+            lines += [
+                f"### {number}. {item['problem']}",
+                "",
+                f"- **Приоритет:** {priority}",
+                f"- **Категория:** {item['category']}",
+                f"- **Почему важно:** {item['why']}",
+                f"- **На чём основано:** {item['evidence']}",
+                f"- **Что сделать:** {item['action']}",
+                f"- **Ожидаемый эффект:** +{item['expected_gain']:.1f} балла к итоговой оценке",
+                "",
+            ]
+
     if missing:
         lines += ["", "## Нет данных", ""]
         lines.append(
