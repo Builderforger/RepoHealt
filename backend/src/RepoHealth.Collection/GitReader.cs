@@ -16,6 +16,25 @@ internal static class GitReader
     private static readonly string[] TestMarkers =
         ["test", "tests", "spec", "specs", "__tests__", "testing", "it"];
 
+    /// Файлы, которые действительно пишут руками.
+    /// Всё остальное — словари, разметка, картинки, файлы
+    /// зависимостей — бывает огромным по делу.
+    private static readonly string[] SourceExtensions =
+        [
+            ".cs", ".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".kt", ".kts",
+            ".go", ".rs", ".rb", ".php", ".c", ".h", ".cpp", ".hpp", ".cc", ".hh",
+            ".m", ".mm", ".swift", ".scala", ".sh", ".ps1", ".sql", ".vue",
+            ".svelte", ".dart", ".lua", ".pl", ".r", ".jl", ".ex", ".exs",
+            ".erl", ".clj", ".fs", ".vb"
+        ];
+
+    /// Куски, по которым видно, что файл не писали руками.
+    private static readonly string[] NotHandWritten =
+        [
+            ".min.", "/vendor/", "/node_modules/", "/third_party/", "/generated/",
+            ".g.cs", ".designer.cs", "_pb2.py", ".pb.go", ".generated."
+        ];
+
     private static readonly string[] QualityConfigs =
         [
             ".editorconfig", ".eslintrc", ".eslintrc.json", ".eslintrc.js", "eslint.config.js",
@@ -196,15 +215,17 @@ internal static class GitReader
             var path = line[(tab + 1)..].Trim();
             code.FilesTotal++;
 
+            var lowered = path.ToLowerInvariant();
+
             var columns = line[..tab].Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (columns.Length >= 4
                 && long.TryParse(columns[3], out var size)
-                && size > code.LargestFileBytes)
+                && size > code.LargestSourceFileBytes
+                && IsHandWrittenCode(lowered))
             {
-                code.LargestFileBytes = size;
+                code.LargestSourceFileBytes = size;
+                code.LargestSourceFile = path;
             }
-
-            var lowered = path.ToLowerInvariant();
 
             if (!code.HasTests && LooksLikeTest(lowered))
                 code.HasTests = true;
@@ -236,6 +257,10 @@ internal static class GitReader
 
         return code;
     }
+
+    private static bool IsHandWrittenCode(string path) =>
+        SourceExtensions.Any(path.EndsWith) &&
+        !NotHandWritten.Any(path.Contains);
 
     private static bool LooksLikeTest(string path) =>
         path.Split('/', '\\').Any(part =>

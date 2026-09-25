@@ -1,4 +1,4 @@
-using RepoHealth.Contracts;
+﻿using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring;
 
@@ -14,9 +14,11 @@ public static class CodeHealthCategory
     private const double GoodTodoDensity = 0.025;
     private const double BadTodoDensity = 0.25;
 
-    /// Файл на сто килобайт ещё читаем, на мегабайт — уже нет.
+    // Речь только о файлах, которые пишут руками.
+    // Сто килобайт кода — это примерно три тысячи строк:
+    // много, но жить можно. Полмегабайта в одном файле — уже беда.
     private const long GoodFileSize = 100 * 1024;
-    private const long BadFileSize = 1024 * 1024;
+    private const long BadFileSize = 500 * 1024;
 
     public static CategoryResult Evaluate(RepoFacts facts)
     {
@@ -39,7 +41,7 @@ public static class CodeHealthCategory
 
         var parts = new List<PartResult>
         {
-            CategoryTools.Part("тесты", 30, code.HasTests ? 1 : 0,
+            CategoryTools.Part("тесты", 35, code.HasTests ? 1 : 0,
                 code.HasTests
                     ? "в проекте есть файлы тестов"
                     : "файлов тестов не нашлось"),
@@ -47,18 +49,16 @@ public static class CodeHealthCategory
             CategoryTools.Part("недоделки в коде", 30,
                 Between(density, GoodTodoDensity, BadTodoDensity),
                 code.TodoCount == 0
-                    ? $"пометок TODO и FIXME нет ({code.FilesTotal} файлов)"
-                    : $"{code.TodoCount} пометок TODO и FIXME на {code.FilesTotal} файлов"),
+                    ? $"пометок TODO и FIXME нет; файлов в проекте: {code.FilesTotal}"
+                    : $"пометок TODO и FIXME: {code.TodoCount}; файлов в проекте: {code.FilesTotal}"),
 
-            CategoryTools.Part("проверка кода настроена", 20,
+            CategoryTools.Part("настройки проверки кода", 20,
                 code.QualityConfig is null ? 0 : 1,
                 code.QualityConfig is null
                     ? "настроек линтера или форматтера не нашлось"
                     : $"найдено: {code.QualityConfig}"),
 
-            CategoryTools.Part("нет разросшихся файлов", 20,
-                Between(code.LargestFileBytes, GoodFileSize, BadFileSize),
-                $"самый большой файл — {Readable(code.LargestFileBytes)}")
+            SourceFileSize(code)
         };
 
         return new CategoryResult
@@ -69,6 +69,25 @@ public static class CodeHealthCategory
             Score = CategoryTools.Combine(parts),
             Parts = parts
         };
+    }
+
+    /// Размер самого большого файла с кодом.
+    /// Если таких файлов не нашлось вовсе — например, репозиторий
+    /// со словарями или вёрсткой — часть выпадает, а не обнуляется.
+    private static PartResult SourceFileSize(CodeFacts code)
+    {
+        if (code.LargestSourceFileBytes == 0)
+        {
+            return CategoryTools.Part("размер файлов кода", 15, 1,
+                "файлов с исходным кодом не нашлось, размер оценивать не по чему");
+        }
+
+        var where = code.LargestSourceFile is null ? "" : $" — {code.LargestSourceFile}";
+
+        return CategoryTools.Part("размер файлов кода", 15,
+            Between(code.LargestSourceFileBytes, GoodFileSize, BadFileSize),
+            $"самый большой файл с кодом {Readable(code.LargestSourceFileBytes)}{where} " +
+            $"(до {Readable(GoodFileSize)} это норма)");
     }
 
     /// Единица пока значение не хуже «хорошего», ноль после «плохого»,

@@ -52,7 +52,7 @@ public class IssuesCategoryTests
             MedianDaysToClose = 3
         }));
 
-        Assert.Equal(40, PartNamed(result, "доведено до конца").Points, 1);
+        Assert.Equal(40, PartNamed(result, "закрытые задачи").Points, 1);
         Assert.Equal(30, PartNamed(result, "скорость закрытия").Points, 1);
         Assert.Equal(100, result.Score, 1);
     }
@@ -69,7 +69,7 @@ public class IssuesCategoryTests
             Cancelled = 4
         }));
 
-        Assert.Equal(40, PartNamed(result, "доведено до конца").Points, 1);
+        Assert.Equal(40, PartNamed(result, "закрытые задачи").Points, 1);
     }
 
     [Theory]
@@ -85,7 +85,7 @@ public class IssuesCategoryTests
             StaleOpen = stale
         }));
 
-        Assert.Equal(expected, PartNamed(result, "нет зависших").Points, 1);
+        Assert.Equal(expected, PartNamed(result, "зависшие задачи").Points, 1);
     }
 
     [Theory]

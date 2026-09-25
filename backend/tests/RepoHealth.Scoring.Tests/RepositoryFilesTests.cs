@@ -1,4 +1,4 @@
-using RepoHealth.Contracts;
+﻿using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring.Tests;
 
@@ -41,7 +41,7 @@ public class RepositoryFilesTests
 
         Assert.Equal(10, result.Parts.Count);
         Assert.NotNull(PartNamed(result, "лицензия"));
-        Assert.NotNull(PartNamed(result, "готовность к агентам"));
+        Assert.NotNull(PartNamed(result, "файлы для ИИ-агентов"));
     }
 
     [Fact]
@@ -68,7 +68,7 @@ public class RepositoryFilesTests
         // Имя лицензии пишут по-разному — ловим все привычные варианты.
         var license = PartNamed(Evaluate(Facts("# Проект", fileName)), "лицензия");
 
-        Assert.Equal(12, license!.Points, 1);
+        Assert.Equal(6, license!.Points, 1);
     }
 
     [Theory]
@@ -79,7 +79,7 @@ public class RepositoryFilesTests
     [InlineData("RepoHealth.csproj")]
     public void BuildFileIsFoundForDifferentEcosystems(string fileName)
     {
-        var build = PartNamed(Evaluate(Facts("# Проект", fileName)), "описание сборки");
+        var build = PartNamed(Evaluate(Facts("# Проект", fileName)), "файл сборки");
 
         Assert.Equal(10, build!.Points, 1);
     }
@@ -91,7 +91,7 @@ public class RepositoryFilesTests
     [InlineData("CLAUDE.md")]
     public void AgentFilesAreRecognised(string fileName)
     {
-        var agents = PartNamed(Evaluate(Facts("# Проект", fileName)), "готовность к агентам");
+        var agents = PartNamed(Evaluate(Facts("# Проект", fileName)), "файлы для ИИ-агентов");
 
         Assert.Equal(4, agents!.Points, 1);
     }
@@ -105,7 +105,7 @@ public class RepositoryFilesTests
     [InlineData("guide")]
     public void DocumentationFolderIsFoundUnderAnyUsualName(string folderName)
     {
-        var docs = PartNamed(Evaluate(Facts("# Проект", folderName)), "отдельная документация");
+        var docs = PartNamed(Evaluate(Facts("# Проект", folderName)), "папка документации");
 
         Assert.Equal(5, docs!.Points, 1);
     }

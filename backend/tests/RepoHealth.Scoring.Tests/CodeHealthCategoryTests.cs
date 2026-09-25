@@ -26,7 +26,8 @@ public class CodeHealthCategoryTests
             TodoCount = todo,
             HasTests = tests,
             QualityConfig = quality,
-            LargestFileBytes = largest
+            LargestSourceFileBytes = largest,
+            LargestSourceFile = "src/big.cs"
         };
 
     private static PartResult PartNamed(CategoryResult result, string name) =>
@@ -77,7 +78,7 @@ public class CodeHealthCategoryTests
     }
 
     [Theory]
-    [InlineData(true, 30)]
+    [InlineData(true, 35)]
     [InlineData(false, 0)]
     public void TestsAreWorthThirtyPoints(bool hasTests, double expected)
     {
@@ -111,14 +112,14 @@ public class CodeHealthCategoryTests
     }
 
     [Theory]
-    [InlineData(50 * 1024, 20)]           // небольшой файл
-    [InlineData(1024 * 1024, 0)]          // мегабайт в одном файле
+    [InlineData(50 * 1024, 15)]           // небольшой файл
+    [InlineData(500 * 1024, 0)]           // полмегабайта кода в одном файле
     [InlineData(10L * 1024 * 1024, 0)]    // ниже нуля не уходим
     public void HugeFilesLowerTheScore(long largest, double expected)
     {
         var result = CodeHealthCategory.Evaluate(Facts(Code(largest: largest)));
 
-        Assert.Equal(expected, PartNamed(result, "нет разросшихся файлов").Points, 1);
+        Assert.Equal(expected, PartNamed(result, "размер файлов кода").Points, 1);
     }
 
     [Fact]
@@ -126,7 +127,7 @@ public class CodeHealthCategoryTests
     {
         var result = CodeHealthCategory.Evaluate(Facts(Code(quality: "diktat-analysis.yml")));
 
-        var part = PartNamed(result, "проверка кода настроена");
+        var part = PartNamed(result, "настройки проверки кода");
 
         Assert.Equal(20, part.Points, 1);
         Assert.Contains("diktat-analysis.yml", part.Explanation);

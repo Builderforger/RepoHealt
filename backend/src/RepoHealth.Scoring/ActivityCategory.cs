@@ -45,11 +45,11 @@ public static class ActivityCategory
         var people = contributors ?? git?.Authors90 ?? 0;
 
         var peopleExplanation = contributors is not null
-            ? $"{contributors} участников по данным SourceCraft " +
-              $"(за последние 90 дней коммитили {git?.Authors90 ?? 0}), " +
+            ? $"участников по данным SourceCraft: {contributors}; " +
+              $"коммитили за последние 90 дней: {git?.Authors90 ?? 0}; " +
               $"для полного балла нужно {AuthorsForFullScore}"
-            : $"{people} авторов за 90 дней по подписям в коммитах " +
-              $"(список участников недоступен), " +
+            : $"авторов за 90 дней по подписям в коммитах: {people} " +
+              $"(список участников недоступен); " +
               $"для полного балла нужно {AuthorsForFullScore}";
 
         var freshness = Scales.Fades(daysSinceCommit, FreshDays, StaleDays) ?? 0;
@@ -62,9 +62,9 @@ public static class ActivityCategory
 
             CategoryTools.Part("темп работы", 35,
                 Scales.Grows(commits, CommitsForFullScore),
-                $"{commits} коммитов за 90 дней, для полного балла нужно {CommitsForFullScore}"),
+                $"коммитов за 90 дней: {commits}, для полного балла нужно {CommitsForFullScore}"),
 
-            CategoryTools.Part("люди", 30,
+            CategoryTools.Part("участники", 30,
                 Scales.Grows(people, AuthorsForFullScore),
                 peopleExplanation)
         };

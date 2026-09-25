@@ -1,4 +1,4 @@
-using RepoHealth.Contracts;
+﻿using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring;
 
@@ -39,14 +39,13 @@ public static class IssuesCategory
 
         var parts = new List<PartResult>
         {
-            CategoryTools.Part("доведено до конца", 40, closedShare,
-                $"закрыто {finished} задач из {issues.Total}"),
+            CategoryTools.Part("закрытые задачи", 40, closedShare,
+                $"закрыто и отменено: {finished} из {issues.Total}"),
 
-            CategoryTools.Part("нет зависших", 30, 1 - staleShare,
+            CategoryTools.Part("зависшие задачи", 30, 1 - staleShare,
                 issues.Open == 0
                     ? "открытых задач нет"
-                    : $"{issues.StaleOpen} из {issues.Open} открытых задач " +
-                      "не обновлялись больше 90 дней")
+                    : $"не обновлялись больше 90 дней: {issues.StaleOpen} из {issues.Open} открытых")
         };
 
         // Скорость закрытия считается не всегда: у закрытых задач
@@ -77,7 +76,7 @@ public static class IssuesCategory
         var share = Scales.Fades((int)Math.Round(days), FastDays, SlowDays) ?? 0;
 
         return CategoryTools.Part("скорость закрытия", 30, share,
-            $"задачи закрываются за {days:0.#} дн. в среднем " +
+            $"среднее время закрытия: {days:0.#} дн. " +
             $"(быстрым считается до {FastDays} дн., медленным — от {SlowDays})");
     }
 }

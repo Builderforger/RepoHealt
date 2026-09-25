@@ -1,4 +1,4 @@
-using RepoHealth.Contracts;
+﻿using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring.Tests;
 
@@ -94,7 +94,7 @@ public class ActivityCategoryTests
     {
         var result = ActivityCategory.Evaluate(Facts(authors90: authors));
 
-        Assert.Equal(expected, PartNamed(result, "люди").Points, 1);
+        Assert.Equal(expected, PartNamed(result, "участники").Points, 1);
     }
 
     // ---------- поведение в целом ----------

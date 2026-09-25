@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring;
@@ -108,19 +108,19 @@ public static class DocumentationCategory
 
         return
         [
-            CategoryTools.Part("объём", 20,
+            CategoryTools.Part("объём README", 20,
                 Scales.Grows(lines, LinesForFullScore),
-                $"{lines} непустых строк, для полного балла нужно {LinesForFullScore}"),
+                $"непустых строк: {lines}, для полного балла нужно {LinesForFullScore}"),
 
-            CategoryTools.Part("структура", 15,
+            CategoryTools.Part("структура README", 15,
                 Scales.Grows(headings.Count, HeadingsForFullScore),
-                $"{headings.Count} заголовков, для полного балла нужно {HeadingsForFullScore}"),
+                $"заголовков: {headings.Count}, для полного балла нужно {HeadingsForFullScore}"),
 
-            Section("установка", 15, InstallWords, headingsText, body),
+            Section("раздел про установку", 18, InstallWords, headingsText, body),
 
-            Section("использование", 10, UsageWords, headingsText, body),
+            Section("раздел про использование", 12, UsageWords, headingsText, body),
 
-            CategoryTools.Part("примеры кода", 5,
+            CategoryTools.Part("примеры кода", 6,
                 hasCodeBlocks ? 1 : 0,
                 hasCodeBlocks ? "есть блоки кода" : "блоков кода нет")
         ];
@@ -141,20 +141,23 @@ public static class DocumentationCategory
 
         return
         [
-            Presence("лицензия", 12, license,
+            // Лицензия весит немного намеренно: это формальность,
+            // слабо связанная с качеством. Хороший проект может
+            // забыть её добавить, а брошенный — иметь.
+            Presence("лицензия", 6, license,
                 "лицензия не указана — непонятно, на каких условиях можно использовать проект"),
 
-            Presence("описание сборки", 10, build,
+            Presence("файл сборки", 10, build,
                 "нет файла сборки — непонятно, как собрать проект"),
 
-            Presence("отдельная документация", 5, docs,
+            Presence("папка документации", 5, docs,
                 "отдельной папки с документацией нет"),
 
-            Presence("участие в разработке", 4, contributing,
+            Presence("правила участия", 4, contributing,
                 "нет описания, как присоединиться к работе"),
 
-            Presence("готовность к агентам", 4, agents,
-                "нет файлов для ИИ-агентов (AGENTS.md и подобных)")
+            Presence("файлы для ИИ-агентов", 4, agents,
+                "нет AGENTS.md и подобных файлов")
         ];
     }
 

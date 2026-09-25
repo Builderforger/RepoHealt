@@ -1,4 +1,4 @@
-using RepoHealth.Contracts;
+﻿using RepoHealth.Contracts;
 
 namespace RepoHealth.Scoring.Tests;
 
@@ -26,7 +26,7 @@ public class ContributorsTests
     };
 
     private static PartResult People(RepoFacts facts) =>
-        ActivityCategory.Evaluate(facts).Parts.Single(part => part.Name == "люди");
+        ActivityCategory.Evaluate(facts).Parts.Single(part => part.Name == "участники");
 
     [Fact]
     public void ContributorsFromPlatformWinOverCommitSignatures()

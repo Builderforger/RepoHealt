@@ -68,7 +68,7 @@ public class DocumentationCategoryTests
         // 60 непустых строк при потолке 120 — половина от 20 баллов
         var readme = string.Join("\n", Enumerable.Repeat("текст строки", 60));
 
-        var volume = PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "объём");
+        var volume = PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "объём README");
 
         Assert.Equal(10, volume.Points, 1);
         Assert.Equal(20, volume.MaxPoints);
@@ -80,7 +80,7 @@ public class DocumentationCategoryTests
         // 6 заголовков при потолке 12 — половина от 15 баллов
         var readme = string.Join("\n", Enumerable.Range(1, 6).Select(n => $"# Глава {n}"));
 
-        var structure = PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "структура");
+        var structure = PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "структура README");
 
         Assert.Equal(7.5, structure.Points, 1);
     }
@@ -102,7 +102,7 @@ public class DocumentationCategoryTests
     {
         var result = DocumentationCategory.Evaluate(Facts("# Установка\nделай так"));
 
-        Assert.Equal(15, PartNamed(result, "установка").Points, 1);
+        Assert.Equal(18, PartNamed(result, "раздел про установку").Points, 1);
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class DocumentationCategoryTests
         // слово есть, но отдельного раздела под него нет
         var result = DocumentationCategory.Evaluate(Facts("# Заголовок\nсначала build, потом всё"));
 
-        Assert.Equal(7.5, PartNamed(result, "установка").Points, 1);
+        Assert.Equal(9, PartNamed(result, "раздел про установку").Points, 1);
     }
 
     [Fact]
@@ -119,12 +119,12 @@ public class DocumentationCategoryTests
     {
         var result = DocumentationCategory.Evaluate(Facts("# Заголовок\nобычный текст"));
 
-        Assert.Equal(0, PartNamed(result, "установка").Points, 1);
+        Assert.Equal(0, PartNamed(result, "раздел про установку").Points, 1);
     }
 
     [Theory]
     [InlineData("тут просто текст", 0)]
-    [InlineData("вот код:\n```\nx = 1\n```", 5)]
+    [InlineData("вот код:\n```\nx = 1\n```", 6)]
     public void CodeBlocksArePaidForOnce(string readme, double expected)
     {
         Assert.Equal(expected, PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "примеры кода").Points, 1);
@@ -155,12 +155,12 @@ public class DocumentationCategoryTests
         var result = DocumentationCategory.Evaluate(Facts(readme));
 
         // разделы и примеры кода взяты полностью
-        Assert.Equal(15, PartNamed(result, "установка").Points, 1);
-        Assert.Equal(10, PartNamed(result, "использование").Points, 1);
-        Assert.Equal(5, PartNamed(result, "примеры кода").Points, 1);
+        Assert.Equal(18, PartNamed(result, "раздел про установку").Points, 1);
+        Assert.Equal(12, PartNamed(result, "раздел про использование").Points, 1);
+        Assert.Equal(6, PartNamed(result, "примеры кода").Points, 1);
 
         // а объёма и структуры не хватает — README короткий
-        Assert.True(PartNamed(result, "объём").Points < 20);
+        Assert.True(PartNamed(result, "объём README").Points < 20);
         Assert.True(result.Score > 45);
     }
 
@@ -230,7 +230,7 @@ public class DocumentationCategoryTests
         // и хорошие проекты теряли баллы ни за что.
         var result = DocumentationCategory.Evaluate(Facts($"# Проект\n\n{heading}\nтекст"));
 
-        Assert.Equal(15, PartNamed(result, "установка").Points, 1);
+        Assert.Equal(18, PartNamed(result, "раздел про установку").Points, 1);
     }
 
     [Theory]
@@ -244,7 +244,7 @@ public class DocumentationCategoryTests
     {
         var result = DocumentationCategory.Evaluate(Facts($"# Проект\n\n{heading}\nтекст"));
 
-        Assert.Equal(10, PartNamed(result, "использование").Points, 1);
+        Assert.Equal(12, PartNamed(result, "раздел про использование").Points, 1);
     }
 
     // ---------- проверка на настоящих данных ----------

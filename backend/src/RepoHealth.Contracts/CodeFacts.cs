@@ -22,8 +22,13 @@ public class CodeFacts
     [JsonPropertyName("quality_config")]
     public string? QualityConfig { get; set; }
 
-    /// Размер самого большого файла в байтах.
-    /// Огромные файлы — признак накопленного долга.
-    [JsonPropertyName("largest_file_bytes")]
-    public long LargestFileBytes { get; set; }
+    /// Размер самого большого файла **с кодом**, в байтах.
+    /// Именно с кодом: словари, картинки, файлы зависимостей
+    /// и сжатые сборки бывают огромными, и это нормально.
+    [JsonPropertyName("largest_source_file_bytes")]
+    public long LargestSourceFileBytes { get; set; }
+
+    /// Путь к этому файлу — чтобы человек мог пойти и посмотреть.
+    [JsonPropertyName("largest_source_file")]
+    public string? LargestSourceFile { get; set; }
 }
