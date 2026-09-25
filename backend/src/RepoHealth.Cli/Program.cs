@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using RepoHealth.Collection;
 using RepoHealth.Contracts;
@@ -12,7 +12,7 @@ if (args.Length == 0)
     Console.WriteLine("""
         Сбор фактов о репозиториях SourceCraft и расчёт оценки.
 
-          repohealth collect <папка> [--limit N]  собрать факты в папку
+          repohealth collect <папка> [--limit N] [--force]  собрать факты в папку
           repohealth analyze <орг>/<проект>       разобрать один проект и выдать отчёт
           repohealth export <папка> <файл.jsonl>  посчитать отчёты по собранным фактам
           repohealth <файл.json>                  разбор одного проекта
@@ -191,10 +191,20 @@ static async Task<int> CollectAsync(string[] args)
         ? $"Собираю факты по {limit} репозиториям в {folder}"
         : $"Собираю факты по всему каталогу в {folder}");
 
-    var saved = await collector.CollectToFolderAsync(folder, limit, startedAt, progress);
+    // --force заставляет пересобрать даже то, что не менялось.
+    var force = args.Contains("--force");
+
+    var run = await collector.CollectToFolderAsync(folder, limit, startedAt, force, progress);
 
     Console.WriteLine();
-    Console.WriteLine($"Готово: сохранено {saved} файлов, время сбора {startedAt:u}");
+    Console.WriteLine($"Готово за {run.Duration:hh\\:mm\\:ss}");
+    Console.WriteLine($"  всего в каталоге: {run.Total}");
+    Console.WriteLine($"  собрано заново:   {run.Collected}");
+    Console.WriteLine($"  пропущено:        {run.Skipped} (не менялись с прошлого раза)");
+
+    if (run.Failed > 0)
+        Console.WriteLine($"  не удалось:       {run.Failed}");
+
     return 0;
 }
 

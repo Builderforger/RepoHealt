@@ -17,17 +17,19 @@ public sealed class FactsCollector : IDisposable
     /// <param name="limit">Сколько репозиториев взять; 0 — весь каталог.</param>
     /// <param name="now">Момент сбора: от него считается «дней назад».
     /// Один на весь проход, чтобы репозитории сравнивались между собой честно.</param>
-    public async Task<int> CollectToFolderAsync(
+    /// <param name="force">Собрать всё заново, даже то, что не менялось.</param>
+    public async Task<CollectionRun> CollectToFolderAsync(
         string outputFolder,
         int limit = 0,
         DateTimeOffset? now = null,
+        bool force = false,
         IProgress<string>? progress = null,
         CancellationToken cancel = default)
     {
         Directory.CreateDirectory(outputFolder);
 
         var moment = now ?? DateTimeOffset.UtcNow;
-        var saved = 0;
+        var run = new CollectionRun { StartedAt = moment };
 
         var repositories = new List<ApiRepository>();
         await foreach (var repo in _api.DiscoverAsync(limit, cancel))
@@ -36,23 +38,74 @@ public sealed class FactsCollector : IDisposable
                 repositories.Add(repo);
         }
 
-        progress?.Report($"в каталоге взято {repositories.Count} непустых репозиториев");
+        run.Total = repositories.Count;
+        progress?.Report($"в каталоге взято {run.Total} непустых репозиториев");
+
+        var collected = 0;
+        var skipped = 0;
+        var failed = 0;
+        var done = 0;
 
         await Parallel.ForEachAsync(
             repositories,
             new ParallelOptions { MaxDegreeOfParallelism = Parallelism, CancellationToken = cancel },
             async (repo, token) =>
             {
-                var facts = await CollectAsync(repo, moment, token);
-
                 var file = Path.Combine(outputFolder, FileNameFor(repo));
-                await File.WriteAllTextAsync(file, FactsJson.Write(facts), token);
 
-                var done = Interlocked.Increment(ref saved);
-                progress?.Report($"{done}/{repositories.Count}  {repo.FullName}");
+                if (!force && NothingChanged(file, repo))
+                {
+                    Interlocked.Increment(ref skipped);
+                }
+                else
+                {
+                    try
+                    {
+                        var facts = await CollectAsync(repo, moment, token);
+                        await File.WriteAllTextAsync(file, FactsJson.Write(facts), token);
+                        Interlocked.Increment(ref collected);
+                    }
+                    catch (Exception error) when (error is not OperationCanceledException)
+                    {
+                        Interlocked.Increment(ref failed);
+                        progress?.Report($"не удалось разобрать {repo.FullName}: {error.Message}");
+                    }
+                }
+
+                var count = Interlocked.Increment(ref done);
+                if (count % 25 == 0 || count == run.Total)
+                    progress?.Report($"{count}/{run.Total}  заново: {collected}, пропущено: {skipped}");
             });
 
-        return saved;
+        run.Collected = collected;
+        run.Skipped = skipped;
+        run.Failed = failed;
+        run.FinishedAt = DateTimeOffset.UtcNow;
+        run.Status = "completed";
+
+        return run;
+    }
+
+    /// Проект не менялся с прошлого раза, если дата его обновления
+    /// в каталоге совпадает с той, что мы уже записали.
+    ///
+    /// Отдельного хранилища для этого не нужно: файлы фактов
+    /// и есть память о прошлом проходе.
+    private static bool NothingChanged(string file, ApiRepository repo)
+    {
+        if (!File.Exists(file) || string.IsNullOrEmpty(repo.LastUpdated))
+            return false;
+
+        try
+        {
+            var saved = FactsJson.Read(File.ReadAllText(file));
+            return saved.Catalog?.UpdatedAt == repo.LastUpdated;
+        }
+        catch
+        {
+            // Файл испорчен или от старой версии — соберём заново.
+            return false;
+        }
     }
 
     /// Разбирает один репозиторий по его адресу вида «организация/проект».
