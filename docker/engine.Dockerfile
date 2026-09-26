@@ -6,7 +6,8 @@ WORKDIR /src
 COPY backend/ ./
 
 RUN dotnet publish src/RepoHealth.Api/RepoHealth.Api.csproj -c Release -o /out/api \
- && dotnet publish src/RepoHealth.Cli/RepoHealth.Cli.csproj -c Release -o /out/cli
+ && dotnet publish src/RepoHealth.Cli/RepoHealth.Cli.csproj -c Release -o /out/cli \
+ && dotnet publish src/RepoHealth.Worker/RepoHealth.Worker.csproj -c Release -o /out/worker
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 

@@ -1,5 +1,6 @@
 """Веб-сервис оценки здоровья открытых репозиториев SourceCraft."""
 
+import asyncio
 import secrets
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from fastapi.responses import HTMLResponse, PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from . import auth, db, markdown_report, sourcecraft
+from . import auth, db, markdown_report, refresh, sourcecraft
 
 SESSION_COOKIE = "repohealth_session"
 
@@ -22,8 +23,13 @@ templates = Jinja2Templates(directory=HERE / "templates")
 
 
 @app.on_event("startup")
-def startup():
+async def startup():
     db.prepare()
+
+    # Отчёты готовит движок по расписанию. Сайт следит
+    # за файлом и переливает свежие данные в свою базу.
+    refresh.load_if_new()
+    asyncio.create_task(refresh.watch())
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -47,6 +53,7 @@ def rating_page(request: Request, language: str = "", sort: str = "score", page:
             "sort": sort,
             "languages": db.languages(),
             "summary": db.summary(),
+            "run": refresh.status(),
         },
     )
 
@@ -131,7 +138,9 @@ def auth_callback(code: str = "", error: str = ""):
     session_id = auth.start_session(user)
 
     answer = RedirectResponse("/cabinet")
-    answer.set_cookie(SESSION_COOKIE, session_id, httponly=True, samesite="lax")
+    answer.set_cookie(
+        SESSION_COOKIE, session_id,
+        httponly=True, samesite="lax", secure=auth.secure_cookies())
     return answer
 
 

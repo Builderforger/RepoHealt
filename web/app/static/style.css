@@ -205,6 +205,16 @@ button:hover { filter: brightness(1.08); }
 
 .rating form { margin: 0; }
 
+.run {
+    padding: 10px 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--dim);
+    font-size: 13px;
+    margin: 0 0 18px;
+}
+
 .steps { color: var(--dim); line-height: 1.9; }
 .steps li { padding-left: 4px; }
 

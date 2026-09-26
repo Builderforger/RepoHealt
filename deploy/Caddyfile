@@ -1,0 +1,19 @@
+# Обратный прокси перед сайтом.
+#
+# Если PUBLIC_SITE не задан, работаем по http на любом адресе —
+# этого хватает, чтобы открыть стенд по IP виртуальной машины.
+#
+# Если есть домен, в .env пишется PUBLIC_SITE=https://домен —
+# и Caddy сам получает сертификат Let's Encrypt и продлевает его.
+
+{
+	email {$ACME_EMAIL:admin@example.com}
+}
+
+{$PUBLIC_SITE:http://} {
+	encode zstd gzip
+
+	reverse_proxy web:8000 {
+		header_up X-Forwarded-Proto {scheme}
+	}
+}

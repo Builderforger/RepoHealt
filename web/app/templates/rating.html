@@ -9,6 +9,21 @@
     последний анализ {{ summary.analyzed_at[:10] }}{% endif %}.
 </p>
 
+{% if run %}
+<p class="run">
+    {% if run.status == 'running' %}
+    ⏳ Идёт обход каталога, начат {{ run.started_at[:16]|replace('T', ' ') }}.
+    {% elif run.status == 'failed' %}
+    ⚠ Последний обход не удался: {{ run.error }}
+    {% else %}
+    Последний обход каталога: {{ run.finished_at[:16]|replace('T', ' ') }}.
+    Проверено проектов: {{ run.total }}, из них собрано заново {{ run.collected }},
+    пропущено без изменений {{ run.skipped }}{% if run.failed %},
+    не удалось {{ run.failed }}{% endif %}.
+    {% endif %}
+</p>
+{% endif %}
+
 <form class="filters" method="get" action="/">
     <label>
         Язык

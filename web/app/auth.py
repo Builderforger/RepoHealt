@@ -33,6 +33,13 @@ def configured() -> bool:
     return bool(CLIENT_ID and CLIENT_SECRET)
 
 
+def secure_cookies() -> bool:
+    """На стенде с сертификатом печенье сеанса не должно
+    уходить по открытому http. Локально адрес возврата
+    начинается с http, и тогда запрет не нужен."""
+    return REDIRECT_URI.startswith("https://")
+
+
 def login_url(state: str) -> str:
     query = urllib.parse.urlencode({
         "response_type": "code",
