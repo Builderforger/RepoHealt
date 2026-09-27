@@ -214,6 +214,17 @@ def analyse_my_repo(request: Request, repo: str = Form("")):
     if not session.get("token"):
         return RedirectResponse("/cabinet?message=Сначала укажите токен", status_code=303)
 
+    repo = repo.strip().strip("/")
+
+    # Имя приходит в том числе из поля ввода, а проверке в браузере
+    # доверять нельзя. Ждём ровно «владелец/название».
+    parts = repo.split("/")
+
+    if len(parts) != 2 or not all(parts):
+        return RedirectResponse(
+            "/cabinet?message=Укажите репозиторий в виде владелец/название",
+            status_code=303)
+
     report = sourcecraft.analyse(repo, session["token"])
 
     if report is None:

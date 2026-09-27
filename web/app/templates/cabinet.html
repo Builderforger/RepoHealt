@@ -73,6 +73,21 @@
 <p class="note">Доступных репозиториев не нашлось.</p>
 {% endif %}
 
+<h2>Разобрать любой другой</h2>
+
+<p class="note">
+    В списке выше только репозитории ваших организаций — так устроен
+    метод SourceCraft, которым он получен. Личные репозитории и те,
+    к которым доступ выдан отдельно, в него не попадают.
+    Их можно указать вручную.
+</p>
+
+<form class="token-form" method="post" action="/cabinet/analyse">
+    <input type="text" name="repo" placeholder="владелец/название"
+           pattern="[^/\s]+/[^/\s]+" autocomplete="off" required>
+    <button type="submit">Проанализировать</button>
+</form>
+
 <p class="note">
     <a href="/cabinet/token-reset">указать другой токен</a>
 </p>
