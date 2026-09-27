@@ -200,7 +200,10 @@ public sealed class FactsCollector : IDisposable
             return facts;
         }
 
-        var fromGit = GitReader.Read(cloneUrl, now);
+        // Токен передаём только при личном разборе: в обходе
+        // каталога мы читаем чужие публичные репозитории,
+        // и подставлять туда свой токен незачем.
+        var fromGit = GitReader.Read(cloneUrl, now, withSecurity ? _token : null);
 
         facts.Git = fromGit.Facts;
         facts.Code = fromGit.Code;

@@ -36,8 +36,8 @@ public static class SecurityCategory
         {
             return CategoryResult.NotEnoughData(
                 Name, BaseWeight,
-                "результаты AppSec доступны только участникам репозитория; " +
-                "с текущими правами не отдаются");
+                "результаты AppSec не отданы: они доступны участникам репозитория " +
+                "и только если проверка безопасности в нём включена");
         }
 
         if (!security.ScanFound)

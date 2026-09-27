@@ -48,7 +48,10 @@ internal static class GitReader
     /// <param name="now">Момент сбора. Передаётся снаружи, чтобы
     /// «дней с последнего коммита» считалось от одной точки для всех
     /// репозиториев одного прохода.</param>
-    public static Result Read(string cloneUrl, DateTimeOffset now)
+    /// <param name="token">Токен доступа. Нужен для закрытых
+    /// репозиториев: без него git просто не пустит. В сообщения
+    /// об ошибках он не попадает — они чистятся перед записью.</param>
+    public static Result Read(string cloneUrl, DateTimeOffset now, string? token = null)
     {
         var facts = new Git();
         var notes = new List<Note>();
@@ -58,7 +61,7 @@ internal static class GitReader
 
         try
         {
-            if (!TryClone(cloneUrl, folder, notes))
+            if (!TryClone(GitAddress.WithToken(cloneUrl, token), folder, notes, token))
                 return new Result(facts, null, notes);
 
             ReadReadme(folder, facts, notes);
@@ -75,7 +78,7 @@ internal static class GitReader
 
     /// Сначала пробуем забрать историю за год. Если сервер отказал
     /// или проект не трогали дольше — берём хотя бы последний срез.
-    private static bool TryClone(string url, string folder, List<Note> notes)
+    private static bool TryClone(string url, string folder, List<Note> notes, string? token)
     {
         var shallow = RunGit(null, "clone", "--no-checkout",
             "--shallow-since=1 year ago", "--quiet", url, folder);
@@ -83,7 +86,7 @@ internal static class GitReader
         if (shallow.Ok && Directory.Exists(Path.Combine(folder, ".git")))
             return true;
 
-        var firstFailure = Failure("clone_shallow_since", shallow);
+        var firstFailure = Failure("clone_shallow_since", shallow, token);
 
         DeleteFolder(folder);
 
@@ -106,7 +109,7 @@ internal static class GitReader
         }
 
         notes.Add(firstFailure);
-        notes.Add(Failure("clone_depth_1", lastState));
+        notes.Add(Failure("clone_depth_1", lastState, token));
         return false;
     }
 
@@ -316,12 +319,19 @@ internal static class GitReader
         }
     }
 
-    private static Note Failure(string operation, GitOutput result) => new()
+    private static Note Failure(string operation, GitOutput result, string? token = null)
     {
-        Source = "git",
-        Operation = operation,
-        Reason = string.IsNullOrWhiteSpace(result.Error) ? result.Output.Trim() : result.Error.Trim()
-    };
+        var reason = string.IsNullOrWhiteSpace(result.Error)
+            ? result.Output.Trim()
+            : result.Error.Trim();
+
+        return new Note
+        {
+            Source = "git",
+            Operation = operation,
+            Reason = GitAddress.Hide(reason, token)
+        };
+    }
 
     private static void DeleteFolder(string folder)
     {

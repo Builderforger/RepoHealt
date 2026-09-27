@@ -29,6 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\RepoHealth.Contracts\RepoHealth.Contracts.csproj" />
     <ProjectReference Include="..\..\src\RepoHealth.Scoring\RepoHealth.Scoring.csproj" />
+    <ProjectReference Include="..\..\src\RepoHealth.Collection\RepoHealth.Collection.csproj" />
   </ItemGroup>
 
 </Project>
