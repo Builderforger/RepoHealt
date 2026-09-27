@@ -103,8 +103,16 @@ public static class CodeHealthCategory
         return 1 - (value - good) / (bad - good);
     }
 
-    private static string Readable(long bytes) =>
-        bytes >= 1024 * 1024
-            ? $"{bytes / 1024.0 / 1024:0.#} МБ"
-            : $"{bytes / 1024.0:0} КБ";
+    private static string Readable(long bytes)
+    {
+        if (bytes >= 1024 * 1024)
+            return $"{bytes / 1024.0 / 1024:0.#} МБ";
+
+        // Меньше килобайта округлялось до «0 КБ» — на репозитории
+        // из почти пустых файлов это выглядело как ошибка.
+        if (bytes < 1024)
+            return $"{bytes} Б";
+
+        return $"{bytes / 1024.0:0} КБ";
+    }
 }

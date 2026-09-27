@@ -141,4 +141,28 @@ public class CodeHealthCategoryTests
         Assert.All(result.Parts, part =>
             Assert.False(string.IsNullOrWhiteSpace(part.Explanation)));
     }
+
+    [Fact]
+    public void МаленькиеФайлыПоказываютсяВБайтах()
+    {
+        // На репозитории из почти пустых файлов размер округлялся
+        // до «0 КБ», и объяснение выглядело как ошибка расчёта.
+        var facts = new RepoFacts
+        {
+            Catalog = new Catalog(),
+            Git = new Git(),
+            Code = new CodeFacts
+            {
+                FilesTotal = 10001,
+                HasTests = false,
+                LargestSourceFileBytes = 40,
+                LargestSourceFile = "axiom_fixture.py"
+            }
+        };
+
+        var part = CodeHealthCategory.Evaluate(facts)
+            .Parts.Single(p => p.Name == "размер файлов кода");
+
+        Assert.StartsWith("самый большой файл с кодом 40 Б", part.Explanation);
+    }
 }
