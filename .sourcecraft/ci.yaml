@@ -1,0 +1,32 @@
+# Сборка и проверка проекта в SourceCraft.
+#
+# Две задачи: тесты движка оценки и проверка сайта.
+# Идут параллельно — они ничем друг с другом не связаны.
+
+# Ключ в кавычках намеренно: без них слово on читается
+# как «да» и раздел теряется.
+"on":
+  push:
+    - workflows: checks
+  pull_request:
+    - workflows: checks
+
+workflows:
+  checks:
+    tasks:
+      - name: backend
+        cubes:
+          - name: dotnet-tests
+            image: mcr.microsoft.com/dotnet/sdk:10.0
+            script:
+              - cd $SOURCECRAFT_WORKSPACE/backend
+              - dotnet test --nologo
+
+      - name: web
+        cubes:
+          - name: python-check
+            image: python:3.13-slim
+            script:
+              - cd $SOURCECRAFT_WORKSPACE/web
+              - pip install --no-cache-dir -r requirements.txt
+              - python -m compileall -q app
