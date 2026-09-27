@@ -147,7 +147,7 @@ public class RepositoryFilesTests
     }
 
     [Fact]
-    public void ПолитикаБезопасностиПовышаетОценкуДокументации()
+    public void SecurityPolicyRaisesDocumentationScore()
     {
         // Сценарий из чужой фикстуры «до и после»: в репозиторий
         // добавляют SECURITY.md, и это должно быть заметно.

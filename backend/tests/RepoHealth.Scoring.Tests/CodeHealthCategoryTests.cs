@@ -143,7 +143,7 @@ public class CodeHealthCategoryTests
     }
 
     [Fact]
-    public void МаленькиеФайлыПоказываютсяВБайтах()
+    public void SmallFilesAreShownInBytes()
     {
         // На репозитории из почти пустых файлов размер округлялся
         // до «0 КБ», и объяснение выглядело как ошибка расчёта.

@@ -14,7 +14,7 @@ public class CiCdCategoryTests
     };
 
     [Fact]
-    public void БезДоступаКСборкамЭтоНеПлохаяОценка()
+    public void NoAccessToBuildsIsNotABadScore()
     {
         var result = CiCdCategory.Evaluate(With(null));
 
@@ -23,7 +23,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void ОтсутствиеСборокНеШтрафуется()
+    public void MissingBuildsAreNotPenalized()
     {
         var result = CiCdCategory.Evaluate(With(new CiFacts { RunsSeen = 0 }));
 
@@ -32,7 +32,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void ЗелёнаяАвтоматикаДаётСотню()
+    public void GreenAutomatedBuildsGiveHundred()
     {
         var result = CiCdCategory.Evaluate(With(Good()));
 
@@ -41,7 +41,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void ПадающиеСборкиСнижаютОценку()
+    public void FailingBuildsLowerScore()
     {
         var half = Good();
         half.Successful = 10;
@@ -55,7 +55,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void РучныеЗапускиЦенятсяНиже()
+    public void ManualRunsAreValuedLower()
     {
         var byHand = Good();
         byHand.Automatic = 0;
@@ -68,7 +68,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void ДавноМолчащиеСборкиТеряютСвежесть()
+    public void LongSilentBuildsLoseFreshness()
     {
         var old = Good();
         old.DaysSinceLastRun = 400;
@@ -79,7 +79,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void БезДатыСвежестьНеСчитаетсяИНеОбнуляет()
+    public void WithoutDateFreshnessIsSkippedNotZeroed()
     {
         var noDates = Good();
         noDates.DaysSinceLastRun = null;
@@ -91,7 +91,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void ИдущиеСборкиНеСчитаютсяНиУспехомНиПадением()
+    public void RunningBuildsCountAsNeitherSuccessNorFailure()
     {
         // Двадцать запусков, из них завершились только два.
         var running = new CiFacts
@@ -107,7 +107,7 @@ public class CiCdCategoryTests
     }
 
     [Fact]
-    public void СборкиУчаствуютВОбщейОценке()
+    public void BuildsContributeToOverallScore()
     {
         var facts = With(Good());
         facts.Catalog!.Name = "org/project";

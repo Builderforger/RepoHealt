@@ -18,7 +18,7 @@ public class ReportJsonTests
     }
 
     [Fact]
-    public void ОтчётДляФайлаЗанимаетОднуСтроку()
+    public void FileReportTakesOneLine()
     {
         var written = JsonSerializer.Serialize(AnyReport(), ReportJson.Line);
 
@@ -27,7 +27,7 @@ public class ReportJsonTests
     }
 
     [Fact]
-    public void ВсеОтчётыЗаписываютсяПоСтрокеНаКаждый()
+    public void EachReportIsWrittenOnItsOwnLine()
     {
         var folder = Path.Combine(AppContext.BaseDirectory, "fixtures");
         var files = Directory.GetFiles(folder, "*.json");
@@ -42,7 +42,7 @@ public class ReportJsonTests
     }
 
     [Fact]
-    public void ОтчётДляЧеловекаРазбитНаСтроки()
+    public void HumanReadableReportIsIndented()
     {
         var shown = JsonSerializer.Serialize(AnyReport(), ReportJson.Readable);
 
@@ -50,7 +50,7 @@ public class ReportJsonTests
     }
 
     [Fact]
-    public void РусскийТекстНеПревращаетсяВКоды()
+    public void RussianTextIsNotEscaped()
     {
         var written = JsonSerializer.Serialize(AnyReport(), ReportJson.Line);
 

@@ -11,7 +11,7 @@ public class GitAddressTests
     private const string Token = "pv1_secret_value";
 
     [Fact]
-    public void БезТокенаАдресНеМеняется()
+    public void WithoutTokenAddressIsUnchanged()
     {
         Assert.Equal(Url, GitAddress.WithToken(Url, null));
         Assert.Equal(Url, GitAddress.WithToken(Url, ""));
@@ -19,7 +19,7 @@ public class GitAddressTests
     }
 
     [Fact]
-    public void СТокеномАдресОстаётсяТемЖеРепозиторием()
+    public void WithTokenAddressPointsToSameRepository()
     {
         var withToken = GitAddress.WithToken(Url, Token);
 
@@ -29,7 +29,7 @@ public class GitAddressTests
     }
 
     [Fact]
-    public void ПоОткрытомуHttpТокенНеОтдаём()
+    public void TokenIsNotSentOverPlainHttp()
     {
         // Иначе токен ушёл бы по сети в открытом виде.
         var insecure = "http://git.sourcecraft.dev/org/project.git";
@@ -38,13 +38,13 @@ public class GitAddressTests
     }
 
     [Fact]
-    public void ИспорченныйАдресНеЛомаетСбор()
+    public void MalformedAddressDoesNotBreakCollection()
     {
         Assert.Equal("не адрес", GitAddress.WithToken("не адрес", Token));
     }
 
     [Fact]
-    public void ТокенВырезаетсяИзСообщенияОбОшибке()
+    public void TokenIsStrippedFromErrorMessage()
     {
         var message = $"fatal: Authentication failed for 'https://git:{Token}@git.sourcecraft.dev/org/project.git/'";
 
@@ -56,7 +56,7 @@ public class GitAddressTests
     }
 
     [Fact]
-    public void БезТокенаСообщениеНеТрогаем()
+    public void WithoutTokenMessageIsUntouched()
     {
         var message = "fatal: repository not found";
 

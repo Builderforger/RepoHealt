@@ -17,7 +17,7 @@ public class SecurityCategoryTests
     // ---------- когда оценивать нечего ----------
 
     [Fact]
-    public void БезДоступаКПроверкамЭтоНеПлохаяОценка()
+    public void NoAccessToScansIsNotABadScore()
     {
         var result = SecurityCategory.Evaluate(With(null));
 
@@ -26,7 +26,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void ПроверкаНиРазуНеОтработалаТожеНеПлохо()
+    public void NeverCompletedScanIsNotABadScore()
     {
         var result = SecurityCategory.Evaluate(With(new SecurityFacts { ScanFound = false }));
 
@@ -35,7 +35,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void ПроверкаБезРазбивкиПоУровнямНеОценивается()
+    public void ScanWithoutSeverityBreakdownIsNotScored()
     {
         var facts = With(new SecurityFacts
         {
@@ -52,7 +52,7 @@ public class SecurityCategoryTests
     // ---------- сама оценка ----------
 
     [Fact]
-    public void ЧистаяСвежаяПроверкаДаётСотню()
+    public void CleanFreshScanGivesHundred()
     {
         var result = SecurityCategory.Evaluate(With(Clean()));
 
@@ -61,7 +61,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void ДвеКритическиеНаходкиЗабираютВсюСвоюЧасть()
+    public void TwoCriticalFindingsTakeTheWholePart()
     {
         var security = Clean();
         security.Critical = 2;
@@ -73,7 +73,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void ОднаКритическаяХужеЧемДесятьСредних()
+    public void OneCriticalIsWorseThanTenMedium()
     {
         var one = Clean();
         one.Critical = 1;
@@ -89,7 +89,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void ЧемБольшеНаходокТемНижеОценка()
+    public void MoreFindingsMeanLowerScore()
     {
         var few = Clean();
         few.High = 1;
@@ -102,7 +102,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void УровеньКоторыйApiНеОтдалНеОбнуляетКатегорию()
+    public void SeverityMissingFromApiDoesNotZeroCategory()
     {
         var partial = Clean();
         partial.Medium = null;
@@ -114,7 +114,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void СтараяПроверкаСнижаетОценку()
+    public void OldScanLowersScore()
     {
         var old = Clean(DateTimeOffset.UtcNow.AddDays(-300).ToString("O"));
 
@@ -126,7 +126,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void БезДатыПроверкиЗаСвежестьНеНаказываем()
+    public void WithoutScanDateFreshnessIsNotPenalized()
     {
         var noDate = Clean();
         noDate.ScanFinishedAt = null;
@@ -139,7 +139,7 @@ public class SecurityCategoryTests
     // ---------- вес в общей оценке ----------
 
     [Fact]
-    public void БезопасностьУчаствуетВОбщейОценке()
+    public void SecurityContributesToOverallScore()
     {
         var facts = With(Clean());
         facts.Catalog!.Name = "org/project";
@@ -153,7 +153,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void НаНаходкиДаютсяСоветы()
+    public void FindingsProduceRecommendations()
     {
         var security = Clean();
         security.Critical = 3;
@@ -181,7 +181,7 @@ public class SecurityCategoryTests
     }
 
     [Fact]
-    public void ШкалаРазличаетНесколькоНаходокИМножество()
+    public void ScaleDistinguishesFewFindingsFromMany()
     {
         var few = Clean();
         few.High = 6;
