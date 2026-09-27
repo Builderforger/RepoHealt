@@ -22,14 +22,21 @@ app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
 templates = Jinja2Templates(directory=HERE / "templates")
 
 
+# Ссылку на фоновую задачу держим сами: без неё сборщик мусора
+# вправе убрать задачу прямо посреди работы, и слежение за
+# отчётами тихо прекратится.
+_watcher: asyncio.Task | None = None
+
+
 @app.on_event("startup")
 async def startup():
+    global _watcher
+
     db.prepare()
 
     # Отчёты готовит движок по расписанию. Сайт следит
     # за файлом и переливает свежие данные в свою базу.
-    refresh.load_if_new()
-    asyncio.create_task(refresh.watch())
+    _watcher = asyncio.create_task(refresh.watch())
 
 
 @app.get("/", response_class=HTMLResponse)

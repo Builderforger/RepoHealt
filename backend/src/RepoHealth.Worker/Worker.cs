@@ -1,5 +1,4 @@
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 using RepoHealth.Collection;
 using RepoHealth.Contracts;
@@ -14,12 +13,6 @@ namespace RepoHealth.Worker;
 /// а каждый следующий — короткий.
 public class Worker(ILogger<Worker> log, IConfiguration settings) : BackgroundService
 {
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    };
-
     protected override async Task ExecuteAsync(CancellationToken stopping)
     {
         var token = settings["SC_TOKEN"] ?? "";
@@ -124,7 +117,7 @@ public class Worker(ILogger<Worker> log, IConfiguration settings) : BackgroundSe
                 var report = RepoHealthScore.Evaluate(facts);
                 report.AnalyzedAt = analyzedAt;
 
-                output.WriteLine(JsonSerializer.Serialize(report, JsonOptions));
+                output.WriteLine(JsonSerializer.Serialize(report, ReportJson.Line));
                 written++;
             }
         }
@@ -142,7 +135,7 @@ public class Worker(ILogger<Worker> log, IConfiguration settings) : BackgroundSe
         {
             Directory.CreateDirectory(Path.GetDirectoryName(statusFile)!);
             await File.WriteAllTextAsync(
-                statusFile, JsonSerializer.Serialize(run, JsonOptions), cancel);
+                statusFile, JsonSerializer.Serialize(run, ReportJson.Readable), cancel);
         }
         catch (Exception error)
         {

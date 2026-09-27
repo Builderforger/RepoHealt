@@ -66,44 +66,68 @@ def prepare():
         connection.executescript(SCHEMA)
 
 
-def save(report: dict):
-    """Кладёт отчёт в базу, заменяя прежний для этого проекта."""
+INSERT_REPORT = """
+INSERT INTO reports
+    (repo, url, score, language, likes, last_activity,
+     scored, methodology, analyzed_at, report)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+ON CONFLICT(repo) DO UPDATE SET
+    url = excluded.url,
+    score = excluded.score,
+    language = excluded.language,
+    likes = excluded.likes,
+    last_activity = excluded.last_activity,
+    scored = excluded.scored,
+    methodology = excluded.methodology,
+    analyzed_at = excluded.analyzed_at,
+    report = excluded.report
+"""
+
+
+def _row(report: dict) -> tuple:
+    """Раскладывает отчёт по колонкам. Сам отчёт тоже кладём
+    целиком: страница проекта показывает его как есть."""
     scored = sum(
         1 for category in report.get("categories", [])
         if category.get("status") == "Scored"
     )
 
+    return (
+        report.get("repo", ""),
+        report.get("url", ""),
+        report.get("score"),
+        report.get("language"),
+        report.get("likes"),
+        report.get("last_activity"),
+        scored,
+        report.get("methodology_version"),
+        report.get("analyzed_at"),
+        json.dumps(report, ensure_ascii=False),
+    )
+
+
+def save(report: dict):
+    """Кладёт отчёт в базу, заменяя прежний для этого проекта."""
     with connect() as connection:
-        connection.execute(
-            """
-            INSERT INTO reports
-                (repo, url, score, language, likes, last_activity,
-                 scored, methodology, analyzed_at, report)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(repo) DO UPDATE SET
-                url = excluded.url,
-                score = excluded.score,
-                language = excluded.language,
-                likes = excluded.likes,
-                last_activity = excluded.last_activity,
-                scored = excluded.scored,
-                methodology = excluded.methodology,
-                analyzed_at = excluded.analyzed_at,
-                report = excluded.report
-            """,
-            (
-                report.get("repo", ""),
-                report.get("url", ""),
-                report.get("score"),
-                report.get("language"),
-                report.get("likes"),
-                report.get("last_activity"),
-                scored,
-                report.get("methodology_version"),
-                report.get("analyzed_at"),
-                json.dumps(report, ensure_ascii=False),
-            ),
-        )
+        connection.execute(INSERT_REPORT, _row(report))
+
+
+def save_many(reports) -> int:
+    """То же самое, но пачкой и одной записью на диск.
+
+    На всём каталоге это принципиально: по отдельности двадцать
+    с лишним тысяч отчётов пишутся часами, потому что каждая
+    запись ждёт подтверждения от диска.
+    """
+    rows = [_row(report) for report in reports]
+
+    if not rows:
+        return 0
+
+    with connect() as connection:
+        connection.executemany(INSERT_REPORT, rows)
+
+    return len(rows)
 
 
 # Разрешённые способы сортировки.

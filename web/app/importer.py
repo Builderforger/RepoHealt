@@ -15,11 +15,16 @@ import sys
 from . import db
 
 
+# Сколько отчётов пишем за одну запись на диск.
+BATCH = 1000
+
+
 def load(path: str) -> int:
     db.prepare()
 
     loaded = 0
     broken = 0
+    batch = []
 
     with open(path, encoding="utf-8") as source:
         for number, line in enumerate(source, start=1):
@@ -28,11 +33,18 @@ def load(path: str) -> int:
                 continue
 
             try:
-                db.save(json.loads(line))
-                loaded += 1
-            except (json.JSONDecodeError, KeyError) as error:
+                batch.append(json.loads(line))
+            except json.JSONDecodeError as error:
                 broken += 1
                 print(f"  строка {number} пропущена: {error}")
+                continue
+
+            if len(batch) >= BATCH:
+                loaded += db.save_many(batch)
+                batch.clear()
+                print(f"  загружено {loaded}", flush=True)
+
+    loaded += db.save_many(batch)
 
     print(f"загружено отчётов: {loaded}")
     if broken:

@@ -52,11 +52,7 @@ var report = Evaluate(path);
 
 if (asJson)
 {
-    Console.WriteLine(JsonSerializer.Serialize(report, new JsonSerializerOptions
-    {
-        WriteIndented = true,
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    }));
+    Console.WriteLine(JsonSerializer.Serialize(report, ReportJson.Readable));
 }
 else
 {
@@ -101,11 +97,7 @@ static async Task<int> AnalyzeAsync(string[] args)
     var report = RepoHealthScore.Evaluate(facts);
     report.AnalyzedAt = analyzedAt;
 
-    Console.WriteLine(JsonSerializer.Serialize(report, new JsonSerializerOptions
-    {
-        WriteIndented = true,
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    }));
+    Console.WriteLine(JsonSerializer.Serialize(report, ReportJson.Readable));
 
     return 0;
 }
@@ -130,11 +122,6 @@ static int Export(string[] args)
         return 1;
     }
 
-    var options = new JsonSerializerOptions
-    {
-        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-    };
-
     var analyzedAt = DateTimeOffset.UtcNow;
     var written = 0;
 
@@ -149,7 +136,7 @@ static int Export(string[] args)
         var report = Evaluate(file);
         report.AnalyzedAt = analyzedAt;
 
-        output.WriteLine(JsonSerializer.Serialize(report, options));
+        output.WriteLine(JsonSerializer.Serialize(report, ReportJson.Line));
         written++;
     }
 
