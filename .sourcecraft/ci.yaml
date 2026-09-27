@@ -25,7 +25,8 @@ workflows:
       - name: web
         cubes:
           - name: python-check
-            image: python:3.13-slim
+            # Адрес образа полный: короткое имя не разворачивается.
+            image: docker.io/library/python:3.13-slim
             script:
               - cd $SOURCECRAFT_WORKSPACE/web
               - pip install --no-cache-dir -r requirements.txt
