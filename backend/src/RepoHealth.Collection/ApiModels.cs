@@ -147,3 +147,37 @@ internal sealed class ApiRepositoryRef
     [JsonPropertyName("slug")]
     public string Slug { get; set; } = "";
 }
+
+/// Ответ метода «запуски сборок».
+internal sealed class CiRunsResponse
+{
+    [JsonPropertyName("runs")]
+    public List<ApiRun> Runs { get; set; } = [];
+
+    [JsonPropertyName("next_page_token")]
+    public string? NextPageToken { get; set; }
+}
+
+internal sealed class ApiRun
+{
+    /// created, prepared, processing, success, failed,
+    /// canceled, timeout, skipped, awaiting_approval, rejected.
+    [JsonPropertyName("status")]
+    public string? Status { get; set; }
+
+    /// push, pr_update, manual, restart, schedule, repository_event.
+    [JsonPropertyName("event_type")]
+    public string? EventType { get; set; }
+
+    [JsonPropertyName("dates")]
+    public ApiRunDates? Dates { get; set; }
+}
+
+internal sealed class ApiRunDates
+{
+    [JsonPropertyName("finished_at")]
+    public DateTimeOffset? FinishedAt { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public DateTimeOffset? CreatedAt { get; set; }
+}

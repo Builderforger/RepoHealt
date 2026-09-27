@@ -34,4 +34,9 @@ public class SecurityFacts
     /// Всего групп в последней проверке, без разбивки.
     [JsonPropertyName("total")]
     public int? Total { get; set; }
+
+    /// Из них остались открытыми — то есть их ещё не разобрали
+    /// и не отметили ложным срабатыванием.
+    [JsonPropertyName("open")]
+    public int? Open { get; set; }
 }

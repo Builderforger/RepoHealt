@@ -209,9 +209,76 @@ public sealed class FactsCollector : IDisposable
         facts.Issues = await ReadIssuesAsync(organization, repo.Slug, facts.Notes, now, cancel);
 
         if (withSecurity)
+        {
             facts.Security = await ReadSecurityAsync(repo, facts.Notes, cancel);
+            facts.Ci = await ReadCiAsync(organization, repo.Slug, facts.Notes, now, cancel);
+        }
 
         AddOriginWarnings(facts, repo, now);
+
+        return facts;
+    }
+
+    /// Сводит последние сборки в несколько чисел.
+    /// null означает «статусы нам не показали».
+    private async Task<CiFacts?> ReadCiAsync(
+        string org, string slug, List<Note> notes, DateTimeOffset now, CancellationToken cancel)
+    {
+        var runs = await _api.GetCiRunsAsync(org, slug, cancel);
+
+        if (runs is null)
+        {
+            notes.Add(new Note
+            {
+                Source = "api",
+                Operation = "cicd",
+                Reason = "статусы сборок недоступны с текущими правами"
+            });
+
+            return null;
+        }
+
+        var facts = new CiFacts { RunsSeen = runs.Count };
+
+        DateTimeOffset? latest = null;
+
+        foreach (var run in runs)
+        {
+            // Запуск по событию в репозитории — это работающая
+            // автоматика. Ручной запуск тоже считается сборкой,
+            // но о настроенном процессе говорит хуже.
+            if (run.EventType is "push" or "pr_update" or "schedule" or "repository_event")
+                facts.Automatic++;
+
+            switch (run.Status)
+            {
+                case "success":
+                    facts.Successful++;
+                    facts.Finished++;
+                    break;
+
+                // Падение и обрыв по времени одинаково означают,
+                // что сборка не дошла до конца.
+                case "failed":
+                case "timeout":
+                    facts.Failed++;
+                    facts.Finished++;
+                    break;
+
+                // Отменённые, пропущенные и ещё идущие ничего
+                // не говорят о том, собирается проект или нет.
+                default:
+                    continue;
+            }
+
+            var finished = run.Dates?.FinishedAt ?? run.Dates?.CreatedAt;
+
+            if (finished is not null && (latest is null || finished > latest))
+                latest = finished;
+        }
+
+        if (latest is not null)
+            facts.DaysSinceLastRun = (int)(now - latest.Value).TotalDays;
 
         return facts;
     }

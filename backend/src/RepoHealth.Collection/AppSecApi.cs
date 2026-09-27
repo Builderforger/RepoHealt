@@ -69,10 +69,10 @@ public sealed class AppSecApi : IDisposable
         var facts = new SecurityFacts
         {
             ScanFound = true,
-            ScanFinishedAt = scan.FinishedAt
+            ScanFinishedAt = AsDate(scan.TimeFinished),
+            Total = scan.TotalDefectGroups,
+            Open = scan.OpenDefectGroups
         };
-
-        facts.Total = await CountAsync(gitRepo, scan.Uuid, severity: null, notes, cancel);
 
         // Разбивка по уровням: спрашиваем у API только количество,
         // сами группы нам не нужны. Так и быстрее, и не зависим
@@ -88,6 +88,15 @@ public sealed class AppSecApi : IDisposable
         facts.Low = byLevel["LOW"];
 
         return facts;
+    }
+
+    /// Миллисекунды с начала 1970 года — в обычную дату.
+    private static string? AsDate(long? milliseconds)
+    {
+        if (milliseconds is null or <= 0)
+            return null;
+
+        return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds.Value).ToString("O");
     }
 
     private async Task<ScanSummary?> LatestScanAsync(
@@ -188,8 +197,18 @@ public sealed class AppSecApi : IDisposable
         [JsonPropertyName("uuid")]
         public string Uuid { get; set; } = "";
 
-        [JsonPropertyName("finishedAt")]
-        public string? FinishedAt { get; set; }
+        /// Время окончания приходит числом — миллисекундами
+        /// с начала 1970 года, а не строкой с датой.
+        [JsonPropertyName("timeFinished")]
+        public long? TimeFinished { get; set; }
+
+        /// Сколько групп дефектов всего и сколько осталось открытыми.
+        /// Эти числа API отдаёт сразу, отдельно их считать не нужно.
+        [JsonPropertyName("totalDefectGroups")]
+        public int? TotalDefectGroups { get; set; }
+
+        [JsonPropertyName("openDefectGroups")]
+        public int? OpenDefectGroups { get; set; }
     }
 
     private sealed class DefectGroupsPage

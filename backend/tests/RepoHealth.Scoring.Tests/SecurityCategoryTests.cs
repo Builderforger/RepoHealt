@@ -179,4 +179,22 @@ public class SecurityCategoryTests
         // Критические опаснее — совет про них должен стоять выше.
         Assert.Contains("критическ", about.First().Problem);
     }
+
+    [Fact]
+    public void ШкалаРазличаетНесколькоНаходокИМножество()
+    {
+        var few = Clean();
+        few.High = 6;
+
+        var many = Clean();
+        many.High = 60;
+
+        var withFew = SecurityCategory.Evaluate(With(few)).Score;
+        var withMany = SecurityCategory.Evaluate(With(many)).Score;
+
+        // Обоим ставить ноль нельзя: разница между шестью
+        // находками и шестьюдесятью — это разная работа.
+        Assert.True(withFew > withMany, $"шесть: {withFew}, шестьдесят: {withMany}");
+        Assert.True(withFew > 60, $"шесть находок не должны обнулять категорию: {withFew}");
+    }
 }

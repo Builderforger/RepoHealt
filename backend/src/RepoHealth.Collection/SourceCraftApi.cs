@@ -10,6 +10,10 @@ public sealed class SourceCraftApi : IDisposable
     private const string BaseAddress = "https://api.sourcecraft.tech";
     private const int PageSize = 100;
 
+    /// Сколько страниц сборок смотрим — это последние
+    /// несколько сотен запусков, дальше в прошлое не нужно.
+    private const int CiPages = 3;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         // Счётчики приходят строками, а не числами.
@@ -25,6 +29,43 @@ public sealed class SourceCraftApi : IDisposable
 
         _http = new HttpClient { BaseAddress = new Uri(BaseAddress), Timeout = TimeSpan.FromSeconds(60) };
         _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+
+    /// Последние запуски сборок. null — статусы недоступны
+    /// с нашими правами, и это не то же самое, что «сборок нет».
+    internal async Task<List<ApiRun>?> GetCiRunsAsync(
+        string org, string slug, CancellationToken cancel = default)
+    {
+        var runs = new List<ApiRun>();
+        var pageToken = "";
+
+        // Берём несколько последних страниц: нам нужна свежая
+        // картина, а не вся история сборок за годы.
+        for (var page = 0; page < CiPages; page++)
+        {
+            var url = $"/repos/{org}/{slug}/cicd/runs"
+                    + $"?page_size={PageSize}&page_token={Uri.EscapeDataString(pageToken)}";
+
+            var answer = await _http.GetAsync(url, cancel);
+
+            if (!answer.IsSuccessStatusCode)
+                return runs.Count > 0 ? runs : null;
+
+            var got = JsonSerializer.Deserialize<CiRunsResponse>(
+                await answer.Content.ReadAsStringAsync(cancel), JsonOptions);
+
+            if (got is null || got.Runs.Count == 0)
+                break;
+
+            runs.AddRange(got.Runs);
+
+            if (string.IsNullOrEmpty(got.NextPageToken))
+                break;
+
+            pageToken = got.NextPageToken;
+        }
+
+        return runs;
     }
 
     /// Проходит каталог постранично и отдаёт репозитории по мере чтения.

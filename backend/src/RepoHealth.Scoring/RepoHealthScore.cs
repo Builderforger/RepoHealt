@@ -11,7 +11,6 @@ public static class RepoHealthScore
     // Те, что ещё не считаются, честно помечены «нет данных»
     // с указанием причины — так видно, что они не забыты,
     // и при появлении данных менять придётся только сбор.
-    private const double CiWeight = 15;
     private const double IssuesWeight = 15;
     private const double CodeHealthWeight = 20;
 
@@ -22,9 +21,7 @@ public static class RepoHealthScore
             DocumentationCategory.Evaluate(facts),
             ActivityCategory.Evaluate(facts),
 
-            CategoryResult.NotEnoughData("CI/CD", CiWeight,
-                "статусы сборок доступны только участникам репозитория; " +
-                "с текущими правами не отдаются"),
+            CiCdCategory.Evaluate(facts),
 
             IssuesCategory.Evaluate(facts),
 
