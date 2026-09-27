@@ -70,9 +70,13 @@
                 {% if row.score is none %}
                 <span class="no-data">нет оценки</span>
                 {% else %}
-                <span class="score score-{{ 'high' if row.score >= 70 else ('mid' if row.score >= 40 else 'low') }}">
-                    {{ '%.0f'|format(row.score) }}
-                </span>
+                {% set tone = 'high' if row.score >= 70 else ('mid' if row.score >= 40 else 'low') %}
+                <div class="score-cell">
+                    <span class="score score-{{ tone }}">{{ '%.0f'|format(row.score) }}</span>
+                    <div class="bar row-bar">
+                        <div class="fill fill-{{ tone }}" style="width: {{ row.score }}%"></div>
+                    </div>
+                </div>
                 {% endif %}
             </td>
             <td>{{ '%.0f'|format(row.likes) if row.likes is not none else '—' }}</td>
@@ -90,16 +94,21 @@
     </tbody>
 </table>
 
+{% comment %}
+    Значения обязательно экранируются: в названиях языков
+    встречается решётка (C#), а она в адресе начинает якорь —
+    всё после неё браузер на сервер не отправляет.
+{% endcomment %}
 {% if pages > 1 %}
 <nav class="pages">
     {% if page > 1 %}
-    <a href="/?language={{ language }}&sort={{ sort }}&page={{ page - 1 }}">← назад</a>
+    <a href="/?language={{ language|urlencode }}&sort={{ sort|urlencode }}&page={{ page - 1 }}">← назад</a>
     {% endif %}
 
     <span>страница {{ page }} из {{ pages }}</span>
 
     {% if page < pages %}
-    <a href="/?language={{ language }}&sort={{ sort }}&page={{ page + 1 }}">вперёд →</a>
+    <a href="/?language={{ language|urlencode }}&sort={{ sort|urlencode }}&page={{ page + 1 }}">вперёд →</a>
     {% endif %}
 </nav>
 {% endif %}

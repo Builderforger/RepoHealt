@@ -8,6 +8,25 @@
     --mid: #d97706;
     --low: #dc2626;
     --link: #2563eb;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+/* Тёмная тема включается сама, по настройке системы:
+   переключателем пользоваться не придётся, а на тёмных
+   экранах сервис выглядит как остальной SourceCraft. */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ink: #e8e9ed;
+        --dim: #9195a1;
+        --line: #2c2e36;
+        --bg: #16171b;
+        --panel: #1d1f25;
+        --high: #4cae6a;
+        --mid: #d99a3c;
+        --low: #e5605f;
+        --link: #6b9bff;
+        --shadow: none;
+    }
 }
 
 * { box-sizing: border-box; }
@@ -73,6 +92,9 @@ h3 { font-size: 16px; margin: 0; }
     border: 1px solid var(--line);
     border-radius: 6px;
     background: var(--bg);
+    /* Цвет текста полям нужно задавать явно: по умолчанию
+       браузер берёт системный, и на тёмном фоне он пропадает. */
+    color: var(--ink);
 }
 
 /* ---------- таблицы ---------- */
@@ -159,6 +181,56 @@ table { width: 100%; border-collapse: collapse; }
 
 .fill { height: 100%; background: var(--link); border-radius: 3px; }
 
+/* Цвет полоски говорит то же, что и числа рядом,
+   но считывается мгновенно. */
+.fill-high { background: var(--high); }
+.fill-mid  { background: var(--mid); }
+.fill-low  { background: var(--low); }
+
+/* Оценка в рейтинге: число и полоска под ним.
+   По колонке цифр глазу трудно сравнивать, по полоскам — легко. */
+.score-cell { min-width: 64px; }
+
+.row-bar {
+    height: 4px;
+    margin-top: 3px;
+}
+
+.total-bar {
+    width: 160px;
+    height: 8px;
+    margin: 10px 0 6px auto;
+}
+
+/* ---------- сильные стороны ---------- */
+
+.strengths {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 8px 20px;
+}
+
+.strengths li {
+    padding: 8px 12px 8px 26px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    position: relative;
+    font-size: 14px;
+}
+
+.strengths li::before {
+    content: "✓";
+    position: absolute;
+    left: 10px;
+    color: var(--high);
+    font-weight: 700;
+}
+
+.strengths .dim { display: block; margin-top: 2px; }
+
 .missing { border: 1px solid var(--line); border-radius: 8px; }
 .missing .part-name { font-weight: 600; }
 
@@ -167,8 +239,8 @@ table { width: 100%; border-collapse: collapse; }
 .enter { margin-left: auto; font-size: 14px; }
 
 .warning {
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
+    background: var(--panel);
+    border: 1px solid var(--mid);
     border-radius: 8px;
     padding: 10px 14px;
     color: var(--ink);
@@ -188,6 +260,8 @@ table { width: 100%; border-collapse: collapse; }
     font: inherit;
     border: 1px solid var(--line);
     border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink);
 }
 
 button {

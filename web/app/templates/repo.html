@@ -19,10 +19,15 @@
         {% if report.score is none %}
         <span class="no-data big">нет оценки</span>
         {% else %}
-        <span class="score big score-{{ 'high' if report.score >= 70 else ('mid' if report.score >= 40 else 'low') }}">
-            {{ '%.0f'|format(report.score) }}
-        </span>
+        {% set tone = 'high' if report.score >= 70 else ('mid' if report.score >= 40 else 'low') %}
+        <span class="score big score-{{ tone }}">{{ '%.0f'|format(report.score) }}</span>
         <span class="of">из 100</span>
+
+        <div class="bar total-bar">
+            <div class="fill fill-{{ tone }}" style="width: {{ report.score }}%"></div>
+        </div>
+
+        <p class="of">посчитано категорий: {{ scored|length }} из 6</p>
         {% endif %}
     </div>
 </div>
@@ -35,6 +40,21 @@
     Методика {{ report.methodology_version }}.
 </p>
 
+{% if strengths %}
+<h2>Сильные стороны</h2>
+
+<p class="note">Здесь проект набрал полный балл.</p>
+
+<ul class="strengths">
+    {% for item in strengths %}
+    <li>
+        <strong>{{ item.name }}</strong>
+        <span class="dim">{{ item.explanation }}</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 <h2>Из чего сложилась оценка</h2>
 
 {% for category in scored %}
@@ -42,7 +62,7 @@
     <div class="category-head">
         <h3>{{ category.name }}</h3>
         <div>
-            <span class="score">{{ '%.0f'|format(category.score) }}</span>
+            <span class="score score-{{ 'high' if category.score >= 70 else ('mid' if category.score >= 40 else 'low') }}">{{ '%.0f'|format(category.score) }}</span>
             <span class="weight">вес {{ '%.0f'|format(category.applied_weight) }}%</span>
         </div>
     </div>
@@ -51,9 +71,11 @@
         {% for part in category.parts %}
         <tr>
             <td class="part-name">{{ part.name }}</td>
+            {% set share = (part.points / part.max_points * 100) if part.max_points else 0 %}
             <td class="part-bar">
                 <div class="bar">
-                    <div class="fill" style="width: {{ (part.points / part.max_points * 100) if part.max_points else 0 }}%"></div>
+                    <div class="fill fill-{{ 'high' if share >= 70 else ('mid' if share >= 35 else 'low') }}"
+                         style="width: {{ share }}%"></div>
                 </div>
             </td>
             <td class="part-points">{{ '%.0f'|format(part.points) }} / {{ '%.0f'|format(part.max_points) }}</td>

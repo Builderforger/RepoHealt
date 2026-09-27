@@ -39,6 +39,30 @@ async def startup():
     _watcher = asyncio.create_task(refresh.watch())
 
 
+def strengths(categories: list[dict]) -> list[dict]:
+    """Части, набравшие полный балл.
+
+    ТЗ требует показывать не только проблемы, но и сильные стороны.
+    Считаем сильным то, где проект взял максимум: это тот же расчёт,
+    только с другой стороны, и придумывать ничего не нужно.
+    """
+    found = []
+
+    for category in categories:
+        if category.get("status") != "Scored":
+            continue
+
+        for part in category.get("parts", []):
+            top = part.get("max_points") or 0
+
+            if top and part.get("points") >= top:
+                found.append(part)
+
+    # Сначала то, что весит больше: полный балл за крупную часть
+    # говорит о проекте больше, чем за мелкую.
+    return sorted(found, key=lambda part: part["max_points"], reverse=True)
+
+
 @app.get("/", response_class=HTMLResponse)
 def rating_page(request: Request, language: str = "", sort: str = "score", page: int = 1):
     rows, total = db.rating(
@@ -81,6 +105,7 @@ def repo_page(request: Request, org: str, name: str):
             "report": report,
             "scored": [c for c in categories if c.get("status") == "Scored"],
             "missing": [c for c in categories if c.get("status") != "Scored"],
+            "strengths": strengths(categories),
         },
     )
 
@@ -258,6 +283,7 @@ def personal_report(request: Request, org: str, name: str):
             "personal": True,
             "scored": [c for c in categories if c.get("status") == "Scored"],
             "missing": [c for c in categories if c.get("status") != "Scored"],
+            "strengths": strengths(categories),
         },
     )
 
