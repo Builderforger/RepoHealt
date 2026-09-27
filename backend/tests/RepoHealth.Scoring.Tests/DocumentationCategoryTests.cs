@@ -65,13 +65,13 @@ public class DocumentationCategoryTests
     [Fact]
     public void HalfOfRequiredLinesGivesHalfOfVolumePoints()
     {
-        // 60 непустых строк при потолке 120 — половина от 20 баллов
+        // 60 непустых строк при потолке 120 — половина от 16 баллов
         var readme = string.Join("\n", Enumerable.Repeat("текст строки", 60));
 
         var volume = PartNamed(DocumentationCategory.Evaluate(Facts(readme)), "объём README");
 
-        Assert.Equal(10, volume.Points, 1);
-        Assert.Equal(20, volume.MaxPoints);
+        Assert.Equal(8, volume.Points, 1);
+        Assert.Equal(16, volume.MaxPoints);
     }
 
     [Fact]

@@ -39,9 +39,10 @@ public class RepositoryFilesTests
     {
         var result = Evaluate(Facts("# Проект", "README.md", "LICENSE"));
 
-        Assert.Equal(10, result.Parts.Count);
+        Assert.Equal(11, result.Parts.Count);
         Assert.NotNull(PartNamed(result, "лицензия"));
         Assert.NotNull(PartNamed(result, "файлы для ИИ-агентов"));
+        Assert.NotNull(PartNamed(result, "политика безопасности"));
     }
 
     [Fact]
@@ -143,5 +144,23 @@ public class RepositoryFilesTests
 
         Assert.True(prepared.Score > plain.Score + 25,
             $"подготовленный {prepared.Score}, обычный {plain.Score}");
+    }
+
+    [Fact]
+    public void ПолитикаБезопасностиПовышаетОценкуДокументации()
+    {
+        // Сценарий из чужой фикстуры «до и после»: в репозиторий
+        // добавляют SECURITY.md, и это должно быть заметно.
+        // Раньше мы такой файл не видели вовсе.
+        var without = Evaluate(Facts("# Проект", "README.md", "LICENSE"));
+        var with = Evaluate(Facts("# Проект", "README.md", "LICENSE", "SECURITY.md"));
+
+        Assert.True(with.Score > without.Score,
+            $"без политики: {without.Score}, с политикой: {with.Score}");
+
+        var part = PartNamed(with, "политика безопасности");
+
+        Assert.NotNull(part);
+        Assert.Equal(part!.MaxPoints, part.Points);
     }
 }

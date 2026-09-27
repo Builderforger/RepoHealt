@@ -38,6 +38,12 @@ public static class DocumentationCategory
     private static readonly string[] ContributingNames =
         ["contributing", "code_of_conduct", "codeowners"];
 
+    /// Политика безопасности: куда сообщать о найденной уязвимости.
+    /// Это документ, а не результат проверки, поэтому он относится
+    /// к документации, а не к категории Security.
+    private static readonly string[] SecurityPolicyNames =
+        ["security", "security_policy", "security-policy"];
+
     // Папку с документацией называют по-разному: у diktat это «info»,
     // у других «wiki» или «guide». Ищем все привычные имена.
     private static readonly string[] DocsFolders =
@@ -108,7 +114,7 @@ public static class DocumentationCategory
 
         return
         [
-            CategoryTools.Part("объём README", 20,
+            CategoryTools.Part("объём README", 16,
                 Scales.Grows(lines, LinesForFullScore),
                 $"непустых строк: {lines}, для полного балла нужно {LinesForFullScore}"),
 
@@ -136,6 +142,7 @@ public static class DocumentationCategory
         var contributing = Find(names, ContributingNames);
         var docs = Find(names, DocsFolders);
         var agents = Find(names, AgentNames);
+        var securityPolicy = Find(names, SecurityPolicyNames);
         var build = names.FirstOrDefault(name =>
             BuildNames.Contains(name) || BuildExtensions.Any(name.EndsWith));
 
@@ -157,7 +164,10 @@ public static class DocumentationCategory
                 "нет описания, как присоединиться к работе"),
 
             Presence("файлы для ИИ-агентов", 4, agents,
-                "нет AGENTS.md и подобных файлов")
+                "нет AGENTS.md и подобных файлов"),
+
+            Presence("политика безопасности", 4, securityPolicy,
+                "нет SECURITY.md — непонятно, куда сообщать о найденной уязвимости")
         ];
     }
 
