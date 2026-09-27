@@ -6,13 +6,23 @@ namespace RepoHealth.Collection;
 public sealed class FactsCollector : IDisposable
 {
     private readonly SourceCraftApi _api;
+    private readonly string _token;
+
+    /// Второй API — результаты проверок безопасности. Создаём его
+    /// только если он понадобится: в общем обходе каталога мы туда
+    /// не ходим, потому что прав на чужие репозитории всё равно нет.
+    private AppSecApi? _appsec;
 
     /// Сколько репозиториев обрабатываем одновременно.
     /// Клонирование упирается в сеть и диск, а не в лимит запросов,
     /// поэтому большого числа тут не нужно.
     public int Parallelism { get; init; } = 6;
 
-    public FactsCollector(string token) => _api = new SourceCraftApi(token);
+    public FactsCollector(string token)
+    {
+        _api = new SourceCraftApi(token);
+        _token = token;
+    }
 
     /// <param name="limit">Сколько репозиториев взять; 0 — весь каталог.</param>
     /// <param name="now">Момент сбора: от него считается «дней назад».
@@ -61,7 +71,7 @@ public sealed class FactsCollector : IDisposable
                 {
                     try
                     {
-                        var facts = await CollectAsync(repo, moment, token);
+                        var facts = await CollectAsync(repo, moment, withSecurity: false, token);
                         await File.WriteAllTextAsync(file, FactsJson.Write(facts), token);
                         Interlocked.Increment(ref collected);
                     }
@@ -119,12 +129,18 @@ public sealed class FactsCollector : IDisposable
         if (repo is null)
             return null;
 
-        return await CollectAsync(repo, now ?? DateTimeOffset.UtcNow, cancel);
+        return await CollectAsync(
+            repo, now ?? DateTimeOffset.UtcNow, withSecurity: true, cancel);
     }
 
     /// Собирает факты по одному репозиторию.
+    /// <param name="withSecurity">Спрашивать ли результаты проверок
+    /// безопасности. В обходе каталога — нет: чужие проверки закрыты,
+    /// и запрашивать их для каждого репозитория означает тысячи
+    /// заведомо отбитых запросов.</param>
     internal async Task<RepoFacts> CollectAsync(
-        ApiRepository repo, DateTimeOffset now, CancellationToken cancel = default)
+        ApiRepository repo, DateTimeOffset now,
+        bool withSecurity = false, CancellationToken cancel = default)
     {
         var facts = new RepoFacts
         {
@@ -192,9 +208,36 @@ public sealed class FactsCollector : IDisposable
 
         facts.Issues = await ReadIssuesAsync(organization, repo.Slug, facts.Notes, now, cancel);
 
+        if (withSecurity)
+            facts.Security = await ReadSecurityAsync(repo, facts.Notes, cancel);
+
         AddOriginWarnings(facts, repo, now);
 
         return facts;
+    }
+
+    /// Спрашивает результаты проверок безопасности.
+    /// null означает «нам их не показали»: прав нет, безопасность
+    /// в репозитории выключена или API недоступен. Это не то же
+    /// самое, что «уязвимостей не нашли».
+    private async Task<SecurityFacts?> ReadSecurityAsync(
+        ApiRepository repo, List<Note> notes, CancellationToken cancel)
+    {
+        if (string.IsNullOrEmpty(repo.Id))
+        {
+            notes.Add(new Note
+            {
+                Source = "appsec",
+                Operation = "security",
+                Reason = "в карточке репозитория нет идентификатора"
+            });
+
+            return null;
+        }
+
+        _appsec ??= new AppSecApi(_token);
+
+        return await _appsec.ReadAsync(repo.Id, notes, cancel);
     }
 
     /// Сводит задачи в несколько чисел.
@@ -341,5 +384,9 @@ public sealed class FactsCollector : IDisposable
         return name + ".json";
     }
 
-    public void Dispose() => _api.Dispose();
+    public void Dispose()
+    {
+        _api.Dispose();
+        _appsec?.Dispose();
+    }
 }

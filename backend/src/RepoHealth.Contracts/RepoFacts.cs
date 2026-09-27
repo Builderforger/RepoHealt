@@ -23,6 +23,11 @@ public class RepoFacts
     /// и это не то же самое, что «задач нет».
     [JsonPropertyName("issues")]
     public IssuesFacts? Issues { get; set; }
+    /// Проверка безопасности. null — результаты недоступны
+    /// с теми правами, с которыми мы смотрим репозиторий.
+    [JsonPropertyName("security")]
+    public SecurityFacts? Security { get; set; }
+
     [JsonPropertyName("notes")]
     public List<Note> Notes { get; set; } = [];
 }

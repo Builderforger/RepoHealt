@@ -13,7 +13,6 @@ public static class RepoHealthScore
     // и при появлении данных менять придётся только сбор.
     private const double CiWeight = 15;
     private const double IssuesWeight = 15;
-    private const double SecurityWeight = 20;
     private const double CodeHealthWeight = 20;
 
     public static HealthReport Evaluate(RepoFacts facts)
@@ -29,9 +28,7 @@ public static class RepoHealthScore
 
             IssuesCategory.Evaluate(facts),
 
-            CategoryResult.NotEnoughData("Security", SecurityWeight,
-                "результаты AppSec доступны только участникам репозитория; " +
-                "с текущими правами не отдаются"),
+            SecurityCategory.Evaluate(facts),
 
             CodeHealthCategory.Evaluate(facts)
         };

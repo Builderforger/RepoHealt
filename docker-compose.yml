@@ -14,6 +14,9 @@ services:
       # Личные разборы идут с токеном пользователя, он приходит
       # заголовком запроса и нигде не сохраняется.
       SC_TOKEN: ${SC_TOKEN:-}
+      # Адрес API проверок безопасности. В спецификации он не указан,
+      # поэтому оставлен настраиваемым.
+      APPSEC_BASE_URL: ${APPSEC_BASE_URL:-}
     volumes:
       - repohealth-data:/data
     restart: unless-stopped

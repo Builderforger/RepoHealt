@@ -13,6 +13,14 @@ public class Scales
 
         return Math.Min(value / fullAt, 1.0);
     }
+    /// Чем больше находок, тем ниже балл. Это та же убывающая
+    /// шкала, что и Fades, только считает не дни, а количество:
+    /// при fine и меньше — полный балл, при tooMany и больше — ноль.
+    public static double? Fewer(int? count, int fine, int tooMany)
+    {
+        return Fades(count, fine, tooMany);
+    }
+
     public static double? Fades(int? days, int good, int bad)
     {
         if (good >= bad)
