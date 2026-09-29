@@ -351,5 +351,48 @@ button:hover { filter: brightness(1.08); }
     main, header, footer { padding-left: 16px; padding-right: 16px; }
     .headline { flex-direction: column; }
     .total { text-align: left; }
+    .total-bar { margin-left: 0; }
     .filters { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+    /* В рейтинге на узком экране оставляем главное: место,
+       проект, оценку и полноту данных. Лайки, язык и дату
+       прячем — иначе таблица уезжает за край экрана. */
+    .rating th:nth-child(4), .rating td:nth-child(4),
+    .rating th:nth-child(5), .rating td:nth-child(5),
+    .rating th:nth-child(6), .rating td:nth-child(6) { display: none; }
+
+    /* Имена вроде org/very-long-repository-name — это одно
+       длинное слово без пробелов, и без разрешения переносить
+       его таблица распирает экран. */
+    .rating td a { overflow-wrap: anywhere; }
+    .rating td { padding: 10px 6px; }
+    .place { width: 28px; }
+
+    /* Части оценки из таблицы превращаются в карточки:
+       на телефоне четыре колонки сжимаются так, что текст
+       переносится по одному слову. */
+    .parts tr {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .parts td { padding: 0; }
+    .part-name { width: auto; grid-column: 1; grid-row: 1; font-weight: 600; }
+    .part-points { width: auto; grid-column: 2; grid-row: 1; text-align: right; }
+    .part-bar { width: auto; grid-column: 1 / -1; grid-row: 2; }
+    .part-why { grid-column: 1 / -1; grid-row: 3; }
+
+    /* Категории без данных — тем же приёмом. */
+    .missing tr { display: grid; gap: 4px; padding: 10px 0; }
+    .missing td { padding: 0; }
+    .missing .part-name { width: auto; }
+
+    /* Советы: подписи над текстом, а не колонкой слева. */
+    .advice dl { grid-template-columns: 1fr; gap: 2px; }
+    .advice dt { padding-top: 6px; }
+
+    .strengths { grid-template-columns: 1fr; }
 }
