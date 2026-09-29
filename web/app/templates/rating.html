@@ -98,15 +98,18 @@
    встречается решётка (C#), а она в адресе начинает якорь —
    всё после неё браузер на сервер не отправляет. #}
 {% if pages > 1 %}
+{% set base = '/?language=' ~ language|urlencode ~ '&sort=' ~ sort|urlencode ~ '&page=' %}
 <nav class="pages">
     {% if page > 1 %}
-    <a href="/?language={{ language|urlencode }}&sort={{ sort|urlencode }}&page={{ page - 1 }}">← назад</a>
+    <a href="{{ base }}1">« в начало</a>
+    <a href="{{ base }}{{ page - 1 }}">← назад</a>
     {% endif %}
 
     <span>страница {{ page }} из {{ pages }}</span>
 
     {% if page < pages %}
-    <a href="/?language={{ language|urlencode }}&sort={{ sort|urlencode }}&page={{ page + 1 }}">вперёд →</a>
+    <a href="{{ base }}{{ page + 1 }}">вперёд →</a>
+    <a href="{{ base }}{{ pages }}">в конец »</a>
     {% endif %}
 </nav>
 {% endif %}

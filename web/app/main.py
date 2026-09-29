@@ -65,6 +65,10 @@ def strengths(categories: list[dict]) -> list[dict]:
 
 @app.get("/", response_class=HTMLResponse)
 def rating_page(request: Request, language: str = "", sort: str = "score", page: int = 1):
+    # Номер страницы приходит из адреса, где может оказаться что угодно.
+    # Нулевой или отрицательный дал бы отрицательный сдвиг в запросе.
+    page = max(page, 1)
+
     rows, total = db.rating(
         language=language or None, sort=sort, page=page, per_page=PER_PAGE
     )
